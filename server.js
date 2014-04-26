@@ -2,7 +2,7 @@ var http = require("http"),
     url = require("url"),
     path = require("path"),
     fs = require("fs")
-    port = process.env.PORT || 6014;
+    port = process.env.port || 6014;
  
 http.createServer(function(request, response) {
  
@@ -32,6 +32,6 @@ http.createServer(function(request, response) {
       response.end();
     });
   });
-}).listen(parseInt(port, 10));
+}).listen(port);
  
 console.log("Static file server running at\n  => http://localhost:" + port + "/\nCTRL + C to shutdown");
