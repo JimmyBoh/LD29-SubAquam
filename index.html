@@ -28,6 +28,9 @@
   			window.onorientationchange = function () {
   				Game.scale.refresh();
   			};
+  			window.onmouseup = function () {
+  				Game.input.activePointer.isDown = false;
+  			}
 		</script>
 
 

@@ -1,6 +1,7 @@
   'use strict';
 
   var Cloud = require('../prefabs/cloud.js');
+  var Player = require('../prefabs/player.js');
 
   function Play() {}
 
@@ -10,8 +11,12 @@
   		var worldWidth = this.game.width * 2;
   		var worldHeight = this.game.height * 4;
 
-  		this.game.physics.startSystem(Phaser.Physics.ARCADE);
-  		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
+		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
+
+  		this.game.physics.startSystem(Phaser.Physics.P2JS);
+		this.game.physics.p2.defaultRestitution = 0.8;
+  		this.game.physics.p2.gravity.y = 400;
+
   		this.sky = this.game.add.tileSprite(0, 0, worldWidth, this.game.height, 'sky', 0);
 
   		this.game.stage.backgroundColor = this._calculateDepthColor();
@@ -21,6 +26,9 @@
   		for (var i = 0; i < 8; i++) {
   			this._generateCloud(true);
   		}
+
+  		this.player = new Player(this.game, 300, 300);
+  		this.game.add.existing(this.player);
 
   		this.cursors = this.game.input.keyboard.createCursorKeys();
   	},
@@ -62,7 +70,7 @@
   		var lightness = 113 / 255; // Ranges from 0 to 113
 
   		if (this.game.camera.y > this.game.height)
-  			lightness *= ((this.game.world.height - this.game.camera.y) / (this.game.world.height-this.game.height));
+  			lightness *= ((this.game.world.height - this.game.camera.y) / (this.game.world.height - this.game.height));
 
   		var color = this.game.HSVtoRGB(hue, saturation, lightness);
 
