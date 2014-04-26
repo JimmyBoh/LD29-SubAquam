@@ -9,3 +9,10 @@ body {
   margin-right: auto;
   cursor: pointer;
 }
+
+#details {
+	width: 1280px;
+	margin-left: auto;
+	margin-right: auto;
+	color: #fff;
+}
