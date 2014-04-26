@@ -77,6 +77,7 @@ Preload.prototype = {
 
 		this.game.GoFull = function () {
 			Game.scale.forceLandscape = true;
+			Game.scale.forceOrientation(true, false, 'rotate');
 			Game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
 			Game.scale.startFullScreen();
 			setTimeout(function () {
