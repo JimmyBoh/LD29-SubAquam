@@ -175,14 +175,14 @@ module.exports = Menu;
   Play.prototype = {
   	create: function () {
 
-  		this.game.stage.backgroundColor = '#005AE1';
-
   		var worldWidth = this.game.width * 2;
-  		var worldHeight = this.game.height * 10;
+  		var worldHeight = this.game.height * 4;
 
   		this.game.physics.startSystem(Phaser.Physics.ARCADE);
   		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
   		this.sky = this.game.add.tileSprite(0, 0, worldWidth, this.game.height, 'sky', 0);
+
+  		this.game.stage.backgroundColor = this._calculateDepthColor();
 
   		this.clouds = this.game.add.group();
 
@@ -193,21 +193,21 @@ module.exports = Menu;
   		this.cursors = this.game.input.keyboard.createCursorKeys();
   	},
   	update: function () {
+  		var cameraSpeed = 10;
+
   		if (this.cursors.up.isDown) {
-  			this.game.camera.y -= 4;
+  			this.game.camera.y -= cameraSpeed;
   		} else if (this.cursors.down.isDown) {
-  			this.game.camera.y += 4;
+  			this.game.camera.y += cameraSpeed;
   		}
 
   		if (this.cursors.left.isDown) {
-  			this.game.camera.x -= 4;
+  			this.game.camera.x -= cameraSpeed;
   		} else if (this.cursors.right.isDown) {
-  			this.game.camera.x += 4;
+  			this.game.camera.x += cameraSpeed;
   		}
 
-  		var depth = this.game.camera.y / this.game.world.height;
-		
-
+  		this.game.stage.backgroundColor = this._calculateDepthColor();
   	},
   	render: function () {
   		this.game.debug.cameraInfo(this.game.camera, 32, 32);
@@ -223,12 +223,28 @@ module.exports = Menu;
   		cloud.reset(isIntial);
 
   		return cloud;
+  	},
+  	_calculateDepthColor: function () {
+  		var hue = 153 / 255; // Static
+  		var saturation = 1.0; // Static
+  		var lightness = 113 / 255; // Ranges from 0 to 113
+
+  		if (this.game.camera.y > this.game.height)
+  			lightness *= ((this.game.world.height - this.game.camera.y) / (this.game.world.height-this.game.height));
+
+  		var color = this.game.HSVtoRGB(hue, saturation, lightness);
+
+  		if (this.prevColor != color) {
+  			this.prevColor = color;
+  		}
+
+  		return color;
   	}
   };
 
   module.exports = Play;
 },{"../prefabs/cloud.js":2}],7:[function(require,module,exports){
-'use strict';
+//'use strict';
 
 function Preload() {
   this.asset = null;
@@ -248,7 +264,7 @@ Preload.prototype = {
 
 		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
 
-
+		this.buildAddons();
 	},
 	create: function () {
 		this.asset.cropEnabled = false;
@@ -260,6 +276,58 @@ Preload.prototype = {
 	},
 	onLoadComplete: function () {
 		this.ready = true;
+	},
+	buildAddons: function () {
+		this.game.HSVtoRGB = function (h, s, l) {
+			/**
+			* Converts an HSL color value to RGB. Conversion formula
+			* adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+			* Assumes h, s, and l are contained in the set [0, 1] and
+			* returns r, g, and b in the set [0, 255].
+			*
+			* @param   Number  h       The hue
+			* @param   Number  s       The saturation
+			* @param   Number  l       The lightness
+			* @return  Hex String      The RGB representation
+			*/
+			var r, g, b;
+
+			if (s == 0) {
+				r = g = b = l; // achromatic
+			} else {
+				function hue2rgb(p, q, t) {
+					if (t < 0) t += 1;
+					if (t > 1) t -= 1;
+					if (t < 1 / 6) return p + (q - p) * 6 * t;
+					if (t < 1 / 2) return q;
+					if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+					return p;
+				}
+
+				var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+				var p = 2 * l - q;
+				r = hue2rgb(p, q, h + 1 / 3);
+				g = hue2rgb(p, q, h);
+				b = hue2rgb(p, q, h - 1 / 3);
+			}
+
+			var rgb = [Math.round(r * 255).toString(16), Math.round(g * 255).toString(16), Math.round(b * 255).toString(16)];
+
+			for (var i = 0; i < rgb.length; i++) {
+				if (rgb[i].length === 1)
+					rgb[i] = '0' + rgb[i];
+			}
+			return '#' + rgb.join('');
+		}
+
+		this.game.GoFull = function () {
+			Game.scale.forceLandscape = true;
+			Game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+			Game.scale.startFullScreen();
+			setTimeout(function () {
+				Game.scale.refresh();
+			}, 100);
+		}
 	}
 };
 
