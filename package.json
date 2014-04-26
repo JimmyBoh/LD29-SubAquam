@@ -19,9 +19,5 @@
   },
   "engines": {
     "node": ">=0.8.0"
-  },
-  "main": "./dist/server.js",
-  "scripts": {
-    "start": "node ./dist/server.js"
-	}
+  }
 }
