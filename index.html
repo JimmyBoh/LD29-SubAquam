@@ -24,7 +24,11 @@
 		</div>
 	  <script src="js/phaser.js"></script>
 	  <script src="js/game.js"></script>
-
+		<script>
+  			window.onorientationchange = function () {
+  				Game.scale.refresh();
+  			};
+		</script>
 
 
 	</body>
