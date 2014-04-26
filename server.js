@@ -2,7 +2,7 @@ var http = require("http"),
     url = require("url"),
     path = require("path"),
     fs = require("fs")
-    port = process.env.port || 6014;
+    port = process.env.PORT || 6014;
  
 http.createServer(function(request, response) {
  
