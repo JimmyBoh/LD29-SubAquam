@@ -26,10 +26,14 @@ Cloud.prototype.reset = function (isInitial) {
 	this.frame = data.frame;
 	this.body.velocity.x = data.velocity;
 
-	//var deltaY = this.game.rnd.integerInRange(-10, 10);
-	//var delay = this.game.rnd.integerInRange(0, 100);
+	if (this.game.device.desktop) {
+		var deltaY = this.game.rnd.integerInRange(-20, 20);
+		var delay = this.game.rnd.integerInRange(0, 100);
 
-	//this.game.add.tween(this).to({ y: data.y + deltaY }, 350, Phaser.Easing.Linear.NONE, true, delay, 10000, true);
+		if (this.tween) this.tween.stop();
+
+		this.tween = this.game.add.tween(this).to({ y: data.y + deltaY }, 500, Phaser.Easing.Linear.NONE, true, delay, 10000, true);
+	}
 
 	this.exists = true;
 };

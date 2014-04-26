@@ -15,7 +15,7 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":4,"./states/gameover":5,"./states/menu":6,"./states/play":7,"./states/preload":8}],2:[function(require,module,exports){
+},{"./states/boot":5,"./states/gameover":6,"./states/menu":7,"./states/play":8,"./states/preload":9}],2:[function(require,module,exports){
 'use strict';
 
 var Cloud = function (game) {
@@ -44,10 +44,14 @@ Cloud.prototype.reset = function (isInitial) {
 	this.frame = data.frame;
 	this.body.velocity.x = data.velocity;
 
-	//var deltaY = this.game.rnd.integerInRange(-10, 10);
-	//var delay = this.game.rnd.integerInRange(0, 100);
+	if (this.game.device.desktop) {
+		var deltaY = this.game.rnd.integerInRange(-20, 20);
+		var delay = this.game.rnd.integerInRange(0, 100);
 
-	//this.game.add.tween(this).to({ y: data.y + deltaY }, 350, Phaser.Easing.Linear.NONE, true, delay, 10000, true);
+		if (this.tween) this.tween.stop();
+
+		this.tween = this.game.add.tween(this).to({ y: data.y + deltaY }, 500, Phaser.Easing.Linear.NONE, true, delay, 10000, true);
+	}
 
 	this.exists = true;
 };
@@ -110,13 +114,15 @@ var Player = function (game, x, y) {
 
 	// new Spring(world, bodyA, bodyB, restLength, stiffness, damping, worldA, worldB, localA, localB)
 	this.spring = this.game.physics.p2.createSpring(this.arrow, this, 1, 0, 2, null, null, null, [-100, 45]);
-	this.stiffness = 6;
+	this.stiffness = 8;
 	this.restLength = 1;
 	this.spring.stiffness = 0;
 	this.spring.restLength = 999999999;
 
 	this.isUnderwater = false;
 	this.isAbovewater = true;
+
+	this.limitDrag = false;
 
 	this._stopDragging();
 
@@ -133,13 +139,13 @@ Player.prototype.update = function () {
 	this.isUnderwater = this.y > this.game.height;
 	this.isAbovewater = !this.isUnderwater;
 
+	if (this.limitDrag) {
+		if (this.wasUnderwater && this.isAbovewater)
+			this._stopDragging();
 
-	if (this.wasUnderwater && this.isAbovewater)
-		this._stopDragging();
-
-	if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
-		this._startDragging(this.game.input.activePointer);
-
+		if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
+			this._startDragging(this.game.input.activePointer);
+	}
 
 	this._updateGravity();
 	this._updateArrow();
@@ -167,7 +173,7 @@ Player.prototype._updateInput = function () {
 }
 
 Player.prototype._startDragging = function (pointer) {
-	if (this.isAbovewater) return;
+	if (this.limitDrag && this.isAbovewater) return;
 
 	this.isDragging = true;
 
@@ -208,16 +214,6 @@ Player.prototype._updateArrow = function () {
 	} else {
 		this.arrow.x = this.x;
 		this.arrow.y = this.y;
-
-		if ((Math.abs(this.y - this.game.height) < 2) && this.body.velocity.y < 2) {
-			//this.body.rotation = 0;
-			//this.body.setZeroVelocity();
-		} else {
-			//this.body.angularVelocity = 0;
-			//this.body.rotation = Math.atan2(-this.body.velocity.y, -this.body.velocity.x);
-		}
-
-		
 	}
 }
 
@@ -265,6 +261,45 @@ Player.prototype._fixVelocity = function () {
 module.exports = Player;
 
 },{}],4:[function(require,module,exports){
+'use strict';
+
+var Treasure = function (game, x, y) {
+	Phaser.Sprite.call(this, game, x, y, 'treasure', 0);
+
+	this.anchor.setTo(0.5, 0.5);
+
+	this.game.physics.p2.enable(this, false);
+	this.body.setCircle(20);
+
+	this.body.allowGravity = false;
+	this.body.static = true;
+
+};
+
+Treasure.prototype = Object.create(Phaser.Sprite.prototype);
+Treasure.prototype.constructor = Treasure;
+
+Treasure.prototype.update = function() {
+  
+  
+  
+};
+
+Treasure.prototype.reset = function (x, y) {
+	
+	this.x = x;
+	this.y = y;
+
+	this.frame = this.game.rnd.integerInRange(0, 2);
+
+	if (this.tween) this.tween.stop();
+
+	this.tween = this.game.add.tween(this).to({ y: y - 10 }, 500, Phaser.Easing.Linear.NONE, true, this.game.rnd.integerInRange(0, 100), 10000, true);
+};
+
+module.exports = Treasure;
+
+},{}],5:[function(require,module,exports){
 
 'use strict';
 
@@ -287,7 +322,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -315,7 +350,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 function Menu() {}
@@ -327,8 +362,8 @@ Menu.prototype = {
 	create: function () {
 
 		var style = { font: '65px Arial', fill: '#ffffff', align: 'center' };
-		this.sprite = this.game.add.sprite(this.game.world.centerX, 138, 'yeoman');
-		this.sprite.anchor.setTo(0.5, 0.5);
+		
+
 
 		this.titleText = this.game.add.text(this.game.world.centerX, 300, '\'Allo, \'Allo!', style);
 		this.titleText.anchor.setTo(0.5, 0.5);
@@ -348,11 +383,12 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
   'use strict';
 
   var Cloud = require('../prefabs/cloud.js');
   var Player = require('../prefabs/player.js');
+  var Treasure = require('../prefabs/treasure.js');
 
   function Play() {}
 
@@ -362,10 +398,10 @@ module.exports = Menu;
   		var worldWidth = this.game.width * 2;
   		var worldHeight = this.game.height * 3;
 
-		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
+  		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
   		this.game.physics.startSystem(Phaser.Physics.P2JS);
-		this.game.physics.p2.defaultRestitution = 0.8;
+  		this.game.physics.p2.defaultRestitution = 0.8;
   		this.game.physics.p2.gravity.y = 500;
 
   		this.sky = this.game.add.tileSprite(0, 0, worldWidth, this.game.height, 'sky', 0);
@@ -374,34 +410,33 @@ module.exports = Menu;
 
   		this.clouds = this.game.add.group();
 
-  		for (var i = 0; i < 8; i++) {
+  		var cloudCount = this.game.device.desktop ? 8 : 4;
+
+  		for (var i = 0; i < cloudCount; i++) {
   			this._generateCloud(true);
   		}
 
   		this.player = new Player(this.game, 300, 300);
   		this.game.add.existing(this.player);
 
-  		this.cursors = this.game.input.keyboard.createCursorKeys();
+  		this.treasures = this.game.add.group();
+
+  		var rows = 6;
+  		var cols = 6;
+
+  		for (var row = 3; row < rows; row++) {
+  			for (var col = 1; col < cols; col++) {
+  				var x = worldWidth * (col / cols);
+  				var y = worldHeight * (row / rows);
+  				this._generateTreasure(x, y);
+  			}
+  		}
   	},
   	update: function () {
-  		var cameraSpeed = 10;
-
-  		if (this.cursors.up.isDown) {
-  			this.game.camera.y -= cameraSpeed;
-  		} else if (this.cursors.down.isDown) {
-  			this.game.camera.y += cameraSpeed;
-  		}
-
-  		if (this.cursors.left.isDown) {
-  			this.game.camera.x -= cameraSpeed;
-  		} else if (this.cursors.right.isDown) {
-  			this.game.camera.x += cameraSpeed;
-  		}
-
   		this.game.stage.backgroundColor = this._calculateDepthColor();
   	},
   	render: function () {
-  		this.game.debug.cameraInfo(this.game.camera, 32, 32);
+  		
   	},
   	_generateCloud: function (isIntial) {
   		var cloud = this.clouds.getFirstExists(false);
@@ -414,6 +449,18 @@ module.exports = Menu;
   		cloud.reset(isIntial);
 
   		return cloud;
+  	},
+	_generateTreasure: function (x, y) {
+  		var treasure = this.treasures.getFirstExists(false);
+
+  		if (!treasure) {
+  			treasure = new Treasure(this.game, x, y);
+  			this.treasures.add(treasure);
+  		}
+
+  		treasure.reset(x, y);
+
+  		return treasure;
   	},
   	_calculateDepthColor: function () {
   		var hue = 153 / 255; // Static
@@ -434,8 +481,8 @@ module.exports = Menu;
   };
 
   module.exports = Play;
-},{"../prefabs/cloud.js":2,"../prefabs/player.js":3}],8:[function(require,module,exports){
-//'use strict';
+},{"../prefabs/cloud.js":2,"../prefabs/player.js":3,"../prefabs/treasure.js":4}],9:[function(require,module,exports){
+'use strict';
 
 function Preload() {
   this.asset = null;
@@ -457,6 +504,7 @@ Preload.prototype = {
 		this.load.image('arrow', 'assets/arrow.png');
 
 		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
+		this.load.spritesheet('treasure', 'assets/treasure.png', 40, 40, 3);
 
 		this.buildAddons();
 	},
@@ -489,7 +537,7 @@ Preload.prototype = {
 			if (s == 0) {
 				r = g = b = l; // achromatic
 			} else {
-				function hue2rgb(p, q, t) {
+				var hue2rgb = function (p, q, t) {
 					if (t < 0) t += 1;
 					if (t > 1) t -= 1;
 					if (t < 1 / 6) return p + (q - p) * 6 * t;

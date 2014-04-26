@@ -14,25 +14,25 @@
 		<div id="subaquam"></div>
 		<div id="details">
 			
-			<h1>Sub Aquam <small>- Beneath the Surface (#LD48)</small></h1>
+			<h1>Sub Aquam<small> - Beneath the Surface (#LD48)</small></h1>
 			<p>
 				Controls:
 				<ul>
-					<li>Arrow Keys:   Move</li>
+					<li>Drag to Move</li>
 				</ul> 
 			</p>
 		</div>
 	  <script src="js/phaser.js"></script>
 	  <script src="js/game.js"></script>
-		<script>
+		<script type="text/javascript">
   			window.onorientationchange = function () {
-  				Game.scale.refresh();
+  				setTimeout(function () {
+  					Game.scale.refresh();
+  				}, 500);
   			};
   			window.onmouseup = function () {
   				Game.input.activePointer.isDown = false;
   			}
 		</script>
-
-
 	</body>
 </html>

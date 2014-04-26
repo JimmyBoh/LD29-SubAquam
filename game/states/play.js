@@ -2,6 +2,7 @@
 
   var Cloud = require('../prefabs/cloud.js');
   var Player = require('../prefabs/player.js');
+  var Treasure = require('../prefabs/treasure.js');
 
   function Play() {}
 
@@ -11,10 +12,10 @@
   		var worldWidth = this.game.width * 2;
   		var worldHeight = this.game.height * 3;
 
-		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
+  		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
   		this.game.physics.startSystem(Phaser.Physics.P2JS);
-		this.game.physics.p2.defaultRestitution = 0.8;
+  		this.game.physics.p2.defaultRestitution = 0.8;
   		this.game.physics.p2.gravity.y = 500;
 
   		this.sky = this.game.add.tileSprite(0, 0, worldWidth, this.game.height, 'sky', 0);
@@ -23,34 +24,33 @@
 
   		this.clouds = this.game.add.group();
 
-  		for (var i = 0; i < 8; i++) {
+  		var cloudCount = this.game.device.desktop ? 8 : 4;
+
+  		for (var i = 0; i < cloudCount; i++) {
   			this._generateCloud(true);
   		}
 
   		this.player = new Player(this.game, 300, 300);
   		this.game.add.existing(this.player);
 
-  		this.cursors = this.game.input.keyboard.createCursorKeys();
+  		this.treasures = this.game.add.group();
+
+  		var rows = 6;
+  		var cols = 6;
+
+  		for (var row = 3; row < rows; row++) {
+  			for (var col = 1; col < cols; col++) {
+  				var x = worldWidth * (col / cols);
+  				var y = worldHeight * (row / rows);
+  				this._generateTreasure(x, y);
+  			}
+  		}
   	},
   	update: function () {
-  		var cameraSpeed = 10;
-
-  		if (this.cursors.up.isDown) {
-  			this.game.camera.y -= cameraSpeed;
-  		} else if (this.cursors.down.isDown) {
-  			this.game.camera.y += cameraSpeed;
-  		}
-
-  		if (this.cursors.left.isDown) {
-  			this.game.camera.x -= cameraSpeed;
-  		} else if (this.cursors.right.isDown) {
-  			this.game.camera.x += cameraSpeed;
-  		}
-
   		this.game.stage.backgroundColor = this._calculateDepthColor();
   	},
   	render: function () {
-  		this.game.debug.cameraInfo(this.game.camera, 32, 32);
+  		
   	},
   	_generateCloud: function (isIntial) {
   		var cloud = this.clouds.getFirstExists(false);
@@ -63,6 +63,18 @@
   		cloud.reset(isIntial);
 
   		return cloud;
+  	},
+	_generateTreasure: function (x, y) {
+  		var treasure = this.treasures.getFirstExists(false);
+
+  		if (!treasure) {
+  			treasure = new Treasure(this.game, x, y);
+  			this.treasures.add(treasure);
+  		}
+
+  		treasure.reset(x, y);
+
+  		return treasure;
   	},
   	_calculateDepthColor: function () {
   		var hue = 153 / 255; // Static

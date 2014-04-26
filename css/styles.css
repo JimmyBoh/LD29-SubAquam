@@ -25,3 +25,8 @@ body > * {
 #details {
 	color: #fff;
 }
+
+button{
+	height: 48px;
+	font-size: 40px;
+}

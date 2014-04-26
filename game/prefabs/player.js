@@ -24,13 +24,15 @@ var Player = function (game, x, y) {
 
 	// new Spring(world, bodyA, bodyB, restLength, stiffness, damping, worldA, worldB, localA, localB)
 	this.spring = this.game.physics.p2.createSpring(this.arrow, this, 1, 0, 2, null, null, null, [-100, 45]);
-	this.stiffness = 6;
+	this.stiffness = 8;
 	this.restLength = 1;
 	this.spring.stiffness = 0;
 	this.spring.restLength = 999999999;
 
 	this.isUnderwater = false;
 	this.isAbovewater = true;
+
+	this.limitDrag = false;
 
 	this._stopDragging();
 
@@ -47,13 +49,13 @@ Player.prototype.update = function () {
 	this.isUnderwater = this.y > this.game.height;
 	this.isAbovewater = !this.isUnderwater;
 
+	if (this.limitDrag) {
+		if (this.wasUnderwater && this.isAbovewater)
+			this._stopDragging();
 
-	if (this.wasUnderwater && this.isAbovewater)
-		this._stopDragging();
-
-	if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
-		this._startDragging(this.game.input.activePointer);
-
+		if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
+			this._startDragging(this.game.input.activePointer);
+	}
 
 	this._updateGravity();
 	this._updateArrow();
@@ -81,7 +83,7 @@ Player.prototype._updateInput = function () {
 }
 
 Player.prototype._startDragging = function (pointer) {
-	if (this.isAbovewater) return;
+	if (this.limitDrag && this.isAbovewater) return;
 
 	this.isDragging = true;
 
@@ -122,16 +124,6 @@ Player.prototype._updateArrow = function () {
 	} else {
 		this.arrow.x = this.x;
 		this.arrow.y = this.y;
-
-		if ((Math.abs(this.y - this.game.height) < 2) && this.body.velocity.y < 2) {
-			//this.body.rotation = 0;
-			//this.body.setZeroVelocity();
-		} else {
-			//this.body.angularVelocity = 0;
-			//this.body.rotation = Math.atan2(-this.body.velocity.y, -this.body.velocity.x);
-		}
-
-		
 	}
 }
 
