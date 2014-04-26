@@ -72,7 +72,6 @@ Cloud.prototype.checkOffScreen = function () {
 		(this.x < -this.width && this.body.velocity.x < 0) ||
 		(this.x > this.game.world.width+this.width && this.body.velocity.x > 0)
 	)) {
-		console.log('OFFSCREEN');
 		this.reset();
 	}
 };
