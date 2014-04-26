@@ -15,7 +15,71 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":2,"./states/gameover":3,"./states/menu":4,"./states/play":5,"./states/preload":6}],2:[function(require,module,exports){
+},{"./states/boot":3,"./states/gameover":4,"./states/menu":5,"./states/play":6,"./states/preload":7}],2:[function(require,module,exports){
+'use strict';
+
+var Cloud = function (game) {
+	Phaser.Sprite.call(this, game, 0, 0, 'cloud', 0);
+
+	this.anchor.setTo(0.5, 0.5);
+
+	this.game.physics.arcade.enableBody(this);
+
+	this.body.allowGravity = false;
+	this.body.immovable = true;
+};
+
+Cloud.prototype = Object.create(Phaser.Sprite.prototype);
+Cloud.prototype.constructor = Cloud;
+
+Cloud.prototype.update = function () {
+	this.checkOffScreen();
+};
+
+Cloud.prototype.reset = function (isInitial) {
+	var data = this.generateNewData(isInitial);
+
+	this.x = data.x;
+	this.y = data.y;
+	this.frame = data.frame;
+	this.body.velocity.x = data.velocity;
+
+	this.exists = true;
+};
+
+Cloud.prototype.generateNewData = function (isInitial) {
+
+	var result = {
+		velocity: this.game.rnd.integerInRange(50, 200) * (this.game.rnd.frac() > 0.5 ? -1 : 1),
+		y: this.game.rnd.integerInRange(10, 620),
+		frame: this.game.rnd.integerInRange(0, 2)
+	};
+
+	if (isInitial) {
+		result.x = this.game.rnd.integerInRange(0, this.game.world.width);
+	}
+	else if (result.velocity > 0) {
+		result.x = this.game.rnd.integerInRange(-500, -100);
+	} else {
+		result.x = this.game.rnd.integerInRange(this.game.world.width + 100, this.game.world.width + 500);
+	}
+
+	return result;
+};
+
+Cloud.prototype.checkOffScreen = function () {
+	if (this.exists && (
+		(this.x < -this.width && this.body.velocity.x < 0) ||
+		(this.x > this.game.world.width+this.width && this.body.velocity.x > 0)
+	)) {
+		console.log('OFFSCREEN');
+		this.reset();
+	}
+};
+
+module.exports = Cloud;
+
+},{}],3:[function(require,module,exports){
 
 'use strict';
 
@@ -38,7 +102,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -66,7 +130,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 function Menu() {}
@@ -101,61 +165,63 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
   'use strict';
+
+  var Cloud = require('../prefabs/cloud.js');
 
   function Play() {}
 
   Play.prototype = {
   	create: function () {
+
+  		var worldWidth = this.game.width * 2;
+  		var worldHeight = this.game.height * 10;
+
   		this.game.physics.startSystem(Phaser.Physics.ARCADE);
-  		this.game.world.setBounds(0, 0, 1280 * 2, 720 * 10);
-  		this.sky = this.game.add.tileSprite(0, 0, 1280 * 2, 720, 'sky', 0);
+  		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
+  		this.sky = this.game.add.tileSprite(0, 0, worldWidth, this.game.height, 'sky', 0);
 
   		this.clouds = this.game.add.group();
 
-
+  		for (var i = 0; i < 5; i++) {
+  			this._generateCloud(true);
+  		}
 
   		this.cursors = this.game.input.keyboard.createCursorKeys();
-
-  		this.sprite = this.game.add.sprite(this.game.width / 2, this.game.height / 2, 'yeoman');
-  		this.sprite.inputEnabled = true;
-
-  		this.game.physics.arcade.enable(this.sprite);
-  		this.sprite.body.collideWorldBounds = true;
-  		this.sprite.body.bounce.setTo(1, 1);
-  		this.sprite.body.velocity.x = this.game.rnd.integerInRange(-500, 500);
-  		this.sprite.body.velocity.y = this.game.rnd.integerInRange(-500, 500);
   	},
   	update: function () {
   		if (this.cursors.up.isDown) {
   			this.game.camera.y -= 4;
-  		}
-  		else if (this.cursors.down.isDown) {
+  		} else if (this.cursors.down.isDown) {
   			this.game.camera.y += 4;
   		}
 
   		if (this.cursors.left.isDown) {
   			this.game.camera.x -= 4;
-  		}
-  		else if (this.cursors.right.isDown) {
+  		} else if (this.cursors.right.isDown) {
   			this.game.camera.x += 4;
   		}
   	},
   	render: function () {
   		this.game.debug.cameraInfo(this.game.camera, 32, 32);
   	},
-  	_generateClouds: function () {
-  		var cloud = this.pipes.getFirstExists(false);
+  	_generateCloud: function (isIntial) {
+  		var cloud = this.clouds.getFirstExists(false);
+
   		if (!cloud) {
-  			cloud = new PipeGroup(this.game, this.pipes);
+  			cloud = new Cloud(this.game);
+  			this.clouds.add(cloud);
   		}
-  		cloud.reset();
+
+  		cloud.reset(isIntial);
+
+  		return cloud;
   	}
   };
 
   module.exports = Play;
-},{}],6:[function(require,module,exports){
+},{"../prefabs/cloud.js":2}],7:[function(require,module,exports){
 'use strict';
 
 function Preload() {
@@ -183,7 +249,7 @@ Preload.prototype = {
 	},
 	update: function () {
 		if (!!this.ready) {
-			this.game.state.start('menu');
+			this.game.state.start('play');
 		}
 	},
 	onLoadComplete: function () {
