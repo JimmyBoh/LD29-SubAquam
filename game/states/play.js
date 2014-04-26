@@ -9,13 +9,13 @@
   	create: function () {
 
   		var worldWidth = this.game.width * 2;
-  		var worldHeight = this.game.height * 4;
+  		var worldHeight = this.game.height * 3;
 
 		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
   		this.game.physics.startSystem(Phaser.Physics.P2JS);
 		this.game.physics.p2.defaultRestitution = 0.8;
-  		this.game.physics.p2.gravity.y = 400;
+  		this.game.physics.p2.gravity.y = 500;
 
   		this.sky = this.game.add.tileSprite(0, 0, worldWidth, this.game.height, 'sky', 0);
 

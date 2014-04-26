@@ -22,9 +22,12 @@ var Player = function (game, x, y) {
 	this.game.input.onDown.add(this._onInputDown, this);
 	this.game.input.onUp.add(this._onInputUp, this);
 
-	this.spring = this.game.physics.p2.createSpring(this.arrow, this, 50, 0, 2);
-	this.stiffness = 5;
+	// new Spring(world, bodyA, bodyB, restLength, stiffness, damping, worldA, worldB, localA, localB)
+	this.spring = this.game.physics.p2.createSpring(this.arrow, this, 1, 0, 2, null, null, null, [-100, 45]);
+	this.stiffness = 6;
+	this.restLength = 1;
 	this.spring.stiffness = 0;
+	this.spring.restLength = 999999999;
 
 	this.isUnderwater = false;
 	this.isAbovewater = true;
@@ -39,7 +42,7 @@ Player.prototype.constructor = Player;
 
 Player.prototype.update = function () {
 
-	this.anchor.setTo(0.9, 0.5);
+	//this.anchor.setTo(0.9, 0.5);
 
 	this.isUnderwater = this.y > this.game.height;
 	this.isAbovewater = !this.isUnderwater;
@@ -74,8 +77,6 @@ Player.prototype._onInputUp = function (pointer, e) {
 Player.prototype._updateInput = function () {
 	if (!this.game.input.activePointer.isDown && this.isDragging) {
 		this._stopDragging();
-	} else {
-
 	}
 }
 
@@ -89,10 +90,11 @@ Player.prototype._startDragging = function (pointer) {
 
 	this.arrow.alpha = 1;
 
-	this.body.angularVelocity = 0;
+	//this.body.angularVelocity = 0;
 
 	// Enable the spring
 	this.spring.stiffness = this.stiffness;
+	this.spring.restLength = this.restLength;
 }
 
 Player.prototype._stopDragging = function(){
@@ -102,6 +104,7 @@ Player.prototype._stopDragging = function(){
 
 	// Disable the spring
 	this.spring.stiffness = 0;
+	this.spring.restLength = 999999999;
 }
 
 Player.prototype._updateArrow = function () {
@@ -112,7 +115,7 @@ Player.prototype._updateArrow = function () {
 
 		var rot = Math.atan2(p2.y - p1.y, p2.x - p1.x);
 
-		this.arrow.body.rotation = this.body.rotation = rot;
+		this.arrow.body.rotation = rot;
 
 		this.arrow.body.x = this.game.input.activePointer.worldX;
 		this.arrow.body.y = this.game.input.activePointer.worldY;
@@ -121,11 +124,11 @@ Player.prototype._updateArrow = function () {
 		this.arrow.y = this.y;
 
 		if ((Math.abs(this.y - this.game.height) < 2) && this.body.velocity.y < 2) {
-			this.body.rotation = 0;
+			//this.body.rotation = 0;
 			//this.body.setZeroVelocity();
 		} else {
-			this.body.angularVelocity = 0;
-			this.body.rotation = Math.atan2(-this.body.velocity.y, -this.body.velocity.x);
+			//this.body.angularVelocity = 0;
+			//this.body.rotation = Math.atan2(-this.body.velocity.y, -this.body.velocity.x);
 		}
 
 		
@@ -140,7 +143,7 @@ Player.prototype._updateGravity = function () {
 	else {
 		this.body.data.gravityScale = -0.25;
 		if (this.prevY && this.prevY < this.game.height) {
-			console.log('SPLASH');
+			//console.log('SPLASH');
 		}
 	}
 
