@@ -8,7 +8,7 @@ Menu.prototype = {
 	},
 	create: function () {
 
-
+		this.game.scale.forceOrientation(true, false, 'rotate');
 
 		var style = { font: '65px Arial', fill: '#ffffff', align: 'center' };
 		this.sprite = this.game.add.sprite(this.game.world.centerX, 138, 'yeoman');

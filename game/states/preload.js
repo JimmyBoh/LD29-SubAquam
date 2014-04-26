@@ -15,6 +15,7 @@ Preload.prototype = {
 		this.load.setPreloadSprite(this.asset);
 
 		this.load.image('sky', 'assets/sky.png');
+		this.load.image('rotate', 'assets/rotate.png');
 
 		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
 
@@ -80,7 +81,7 @@ Preload.prototype = {
 			Game.scale.startFullScreen();
 			setTimeout(function () {
 				Game.scale.refresh();
-			}, 100);
+			}, 200);
 		}
 	}
 };

@@ -2,17 +2,17 @@ body {
   background-color: #333;
 }
 
+body > * {
+	width: 1280px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #subaquam {
   border: 2px solid white;
-  width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
   cursor: pointer;
 }
 
 #details {
-	width: 1280px;
-	margin-left: auto;
-	margin-right: auto;
 	color: #fff;
 }
