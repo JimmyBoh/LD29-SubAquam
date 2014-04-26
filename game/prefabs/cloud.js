@@ -32,8 +32,8 @@ Cloud.prototype.reset = function (isInitial) {
 Cloud.prototype.generateNewData = function (isInitial) {
 
 	var result = {
-		velocity: this.game.rnd.integerInRange(50, 200) * (this.game.rnd.frac() > 0.5 ? -1 : 1),
-		y: this.game.rnd.integerInRange(10, 620),
+		velocity: this.game.rnd.integerInRange(10, 50) * (this.game.rnd.frac() > 0.5 ? -1 : 1),
+		y: this.game.rnd.integerInRange(10, 500),
 		frame: this.game.rnd.integerInRange(0, 2)
 	};
 

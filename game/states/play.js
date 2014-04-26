@@ -7,6 +7,8 @@
   Play.prototype = {
   	create: function () {
 
+  		this.game.stage.backgroundColor = '#005AE1';
+
   		var worldWidth = this.game.width * 2;
   		var worldHeight = this.game.height * 10;
 
@@ -16,7 +18,7 @@
 
   		this.clouds = this.game.add.group();
 
-  		for (var i = 0; i < 5; i++) {
+  		for (var i = 0; i < 8; i++) {
   			this._generateCloud(true);
   		}
 
@@ -34,6 +36,10 @@
   		} else if (this.cursors.right.isDown) {
   			this.game.camera.x += 4;
   		}
+
+  		var depth = this.game.camera.y / this.game.world.height;
+		
+
   	},
   	render: function () {
   		this.game.debug.cameraInfo(this.game.camera, 32, 32);

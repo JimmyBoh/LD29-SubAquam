@@ -50,8 +50,8 @@ Cloud.prototype.reset = function (isInitial) {
 Cloud.prototype.generateNewData = function (isInitial) {
 
 	var result = {
-		velocity: this.game.rnd.integerInRange(50, 200) * (this.game.rnd.frac() > 0.5 ? -1 : 1),
-		y: this.game.rnd.integerInRange(10, 620),
+		velocity: this.game.rnd.integerInRange(10, 50) * (this.game.rnd.frac() > 0.5 ? -1 : 1),
+		y: this.game.rnd.integerInRange(10, 500),
 		frame: this.game.rnd.integerInRange(0, 2)
 	};
 
@@ -175,6 +175,8 @@ module.exports = Menu;
   Play.prototype = {
   	create: function () {
 
+  		this.game.stage.backgroundColor = '#005AE1';
+
   		var worldWidth = this.game.width * 2;
   		var worldHeight = this.game.height * 10;
 
@@ -184,7 +186,7 @@ module.exports = Menu;
 
   		this.clouds = this.game.add.group();
 
-  		for (var i = 0; i < 5; i++) {
+  		for (var i = 0; i < 8; i++) {
   			this._generateCloud(true);
   		}
 
@@ -202,6 +204,10 @@ module.exports = Menu;
   		} else if (this.cursors.right.isDown) {
   			this.game.camera.x += 4;
   		}
+
+  		var depth = this.game.camera.y / this.game.world.height;
+		
+
   	},
   	render: function () {
   		this.game.debug.cameraInfo(this.game.camera, 32, 32);
@@ -240,7 +246,7 @@ Preload.prototype = {
 
 		this.load.image('sky', 'assets/sky.png');
 
-		this.load.spritesheet('cloud', 'assets/clouds.png', 200, 160, 3);
+		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
 
 
 	},
