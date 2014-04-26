@@ -7,16 +7,51 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="800"
-   height="600"
+   width="1280"
+   height="720"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="New document 1">
+   sodipodi:docname="art.svg">
   <defs
-     id="defs4" />
+     id="defs4">
+    <linearGradient
+       id="linearGradient3770">
+      <stop
+         style="stop-color:#9fc5ff;stop-opacity:1;"
+         offset="0"
+         id="stop3772" />
+      <stop
+         style="stop-color:#005ae1;stop-opacity:1;"
+         offset="1"
+         id="stop3774" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3770"
+       id="radialGradient3776"
+       cx="393.66046"
+       cy="-873.93158"
+       fx="393.66046"
+       fy="-873.93158"
+       r="400"
+       gradientTransform="matrix(-3.3868458,0,0,-1.2904703,1992.473,-63.973369)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3770"
+       id="radialGradient3784"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-3.3868458,0,0,-1.2904703,1992.473,-2168.6979)"
+       cx="393.66046"
+       cy="-873.93158"
+       fx="393.66046"
+       fy="-873.93158"
+       r="400" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -24,9 +59,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="1500.4101"
-     inkscape:cy="177.19279"
+     inkscape:zoom="0.35"
+     inkscape:cx="1720.4754"
+     inkscape:cy="-346.49891"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -34,7 +69,8 @@
      inkscape:window-height="1017"
      inkscape:window-x="1432"
      inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     showborder="false" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -51,26 +87,28 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-452.36218)">
+     transform="translate(0,-332.36218)">
     <rect
-       style="color:#000000;fill:#80b3ff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:url(#radialGradient3776);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="rect2985"
-       width="800"
-       height="600"
+       width="1280"
+       height="720"
        x="0"
-       y="-0.03061194"
-       transform="translate(0,452.36218)" />
+       y="332.36218" />
     <rect
-       y="452.33157"
-       x="948.57141"
+       y="392.82892"
+       x="1820.3628"
        height="600"
        width="1322.8572"
        id="rect3080"
        style="color:#000000;fill:#80b3ff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     <g
        id="g3001"
-       transform="matrix(0.93391458,0,0,0.93391458,648.29174,-63.473079)"
-       style="opacity:0.8;fill:#f9f9f9">
+       transform="matrix(0.93391458,0,0,0.93391458,1276.3446,20.028054)"
+       style="opacity:0.8;fill:#f9f9f9"
+       inkscape:export-filename="C:\Projects\Personal\LudumDare-29\assets\clouds.png"
+       inkscape:export-xdpi="72"
+       inkscape:export-ydpi="72">
       <path
          transform="translate(528.30978,725.10338)"
          d="m 287.89347,169.16994 c 0,34.86824 -34.82407,63.13453 -77.78175,63.13453 -42.95767,0 -77.78174,-28.26629 -77.78174,-63.13453 0,-34.86824 34.82407,-63.13454 77.78174,-63.13454 42.95768,0 77.78175,28.2663 77.78175,63.13454 z"
@@ -125,7 +163,10 @@
     <g
        id="g3066"
        style="opacity:0.8;fill:#f9f9f9"
-       transform="matrix(0.78934623,0,0,0.9850244,1509.3208,169.98862)">
+       transform="matrix(0.78934623,0,0,0.9850244,1843.5432,-37.518289)"
+       inkscape:export-filename="C:\Projects\Personal\LudumDare-29\assets\clouds.png"
+       inkscape:export-xdpi="72"
+       inkscape:export-ydpi="72">
       <path
          sodipodi:type="arc"
          style="color:#000000;fill:#f9f9f9;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
@@ -180,7 +221,10 @@
     <g
        id="g3073"
        style="opacity:0.8;fill:#f9f9f9"
-       transform="matrix(1.1596533,0,0,1.1855682,406.51063,92.140164)">
+       transform="matrix(1.1596533,0,0,1.1855682,1617.3857,-131.69739)"
+       inkscape:export-filename="C:\Projects\Personal\LudumDare-29\assets\clouds.png"
+       inkscape:export-xdpi="72"
+       inkscape:export-ydpi="72">
       <path
          transform="translate(11.111678,424.07791)"
          d="m 611.14228,87.852661 c 0,13.389409 -18.76882,24.243659 -41.92133,24.243659 -23.15251,0 -41.92133,-10.85425 -41.92133,-24.243659 0,-13.389405 18.76882,-24.243662 41.92133,-24.243662 23.15251,0 41.92133,10.854257 41.92133,24.243662 z"
@@ -232,5 +276,13 @@
          d="m 611.14228,87.852661 c 0,15.373019 -18.76882,27.835319 -41.92133,27.835319 -23.15251,0 -41.92133,-12.4623 -41.92133,-27.835319 0,-15.37302 18.76882,-27.835316 41.92133,-27.835316 23.15251,0 41.92133,12.462296 41.92133,27.835316 z"
          transform="matrix(1.1483653,-0.75348712,1.2343309,1.8812037,-89.351259,839.20209)" />
     </g>
+    <rect
+       y="-1772.3622"
+       x="1.0552753e-008"
+       height="720"
+       width="1280"
+       id="rect3782"
+       style="color:#000000;fill:url(#radialGradient3784);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       transform="scale(1,-1)" />
   </g>
 </svg>
