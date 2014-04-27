@@ -365,7 +365,7 @@ Boot.prototype = {
             this.scale.maxHeight = 1080;
             this.scale.pageAlignHorizontally = true;
             this.scale.pageAlignVertically = true;
-            this.scale.forceOrientation(true, false);
+            //this.scale.forceOrientation(true, false);
             //this.scale.hasResized.add(this.gameResized, this);
             //this.scale.enterIncorrectOrientation.add(this.enterIncorrectOrientation, this);
             //this.scale.leaveIncorrectOrientation.add(this.leaveIncorrectOrientation, this);
@@ -652,7 +652,7 @@ Preload.prototype = {
 		if (window.localStorage) {
 			this.game.highscore = parseInt(window.localStorage['highscore']);
 
-			if (this.game.highscore === null) {
+			if (isNan(this.game.highscore)) {
 				this.game.highscore = 0;
 				window.localStorage['highscore'] = 0;
 			}
