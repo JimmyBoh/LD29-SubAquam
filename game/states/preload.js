@@ -39,7 +39,7 @@ Preload.prototype = {
 		if (window.localStorage) {
 			this.game.highscore = parseInt(window.localStorage['highscore']);
 
-			if (isNan(this.game.highscore)) {
+			if (isNaN(this.game.highscore)) {
 				this.game.highscore = 0;
 				window.localStorage['highscore'] = 0;
 			}
