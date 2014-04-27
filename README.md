@@ -14,7 +14,6 @@ Beneath the Surface
     - Sharks, Whales, Fish, Crustaceans
     - Trenches
     - **Treasure**
-	- Pearls
     - Mermaids, Loch Ness, 
  - <strike>Land
    - Dirt, Stone, Gravel
