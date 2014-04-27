@@ -45,6 +45,19 @@
   			}
   		}
 
+  		var sounds = {
+  			'splash': 3,
+  			'treasure': 3,
+  			'death': 2
+  		};
+
+  		for (var s in sounds) {
+  			this[s + 'Sounds'] = [];
+  			for (var i = 0; i < sounds[s]; i++) {
+  				this[s + 'Sounds'][i] = this.game.add.audio(s + i);
+  			}
+  		}
+
   		this.player = new Player(this.game, 300, 300);
 
   		this.player.body.onBeginContact.add(this._playerHit, this);
@@ -100,7 +113,8 @@
   	_playerHit: function (body, shapeA, shapeB, equation) {
 
   		switch (true) {
-  			case body.sprite instanceof Treasure:
+  			case (body && body.sprite instanceof Treasure):
+  				this._playTreasure();
   				this.player.score += body.sprite.value;
   				body.sprite.exists = false;
   				break;
@@ -108,6 +122,7 @@
   	},
   	_checkPlayer: function () {
   		if (this.player.air <= 0) {
+  			this._playDeath();
   			this.game.score = this.player.score;
   			this.treasures.destroy();
   			this.clouds.destroy();
@@ -116,6 +131,23 @@
   			this.game.state.start('gameover');
   			return;
   		}
+
+  		if (this.player.wasAbovewater && this.player.isUnderwater) {
+  			this._playSplash();
+  		}
+  	},
+
+  	_playSplash: function () {
+  		var pick = this.game.rnd.integerInRange(0, 2);
+  		this.splashSounds[pick].play();
+  	},
+  	_playTreasure: function () {
+  		var pick = this.game.rnd.integerInRange(0, 2);
+  		this.treasureSounds[pick].play();
+  	},
+  	_playDeath: function () {
+  		var pick = this.game.rnd.integerInRange(0, 1);
+  		this.deathSounds[pick].play();
   	}
   };
 

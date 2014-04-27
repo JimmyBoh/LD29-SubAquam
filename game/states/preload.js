@@ -8,19 +8,31 @@ function Preload() {
 Preload.prototype = {
 	preload: function () {
 		this.game.stage.backgroundColor = '#005AE1';
-		this.asset = this.add.sprite(this.width / 2, this.height / 2, 'preloader');
+		this.asset = this.add.sprite(this.game.width / 2, this.game.height / 2, 'preloader');
 		this.asset.anchor.setTo(0.5, 0.5);
 
 		this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 		this.load.setPreloadSprite(this.asset);
 
+		// Images
 		this.load.image('sky', 'assets/sky.png');
 		this.load.image('rotate', 'assets/rotate.png');
 		this.load.image('player', 'assets/player.png');
 		this.load.image('arrow', 'assets/arrow.png');
 
+		// Sprite sheets
 		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
 		this.load.spritesheet('treasure', 'assets/treasure.png', 40, 40, 3);
+
+		// Sounds
+		var sounds = {
+			'splash': 3,
+			'treasure': 3,
+			'death': 2
+		};
+		for (var s in sounds)
+			for (var i = 0; i < sounds[s]; i++)
+				this.load.audio(s + i, 'assets/' + s + i + '.wav');
 
 		this.buildAddons();
 	},

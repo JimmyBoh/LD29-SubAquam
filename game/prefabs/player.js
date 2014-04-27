@@ -51,6 +51,8 @@ Player.prototype = Object.create(Phaser.Sprite.prototype);
 Player.prototype.constructor = Player;
 
 Player.prototype.update = function () {
+	this.wasUnderwater = this.isUnderwater;
+	this.wasAbovewater = this.isAbovewater;
 
 	this.isUnderwater = this.y > this.game.height;
 	this.isAbovewater = !this.isUnderwater;
@@ -62,9 +64,6 @@ Player.prototype.update = function () {
 	this._updateArrow();
 
 	this._updateInput();
-
-	this.wasUnderwater = this.isUnderwater;
-	this.wasAbovewater = this.isAbovewater;
 };
 
 Player.prototype._onInputDown = function (pointer, e) {

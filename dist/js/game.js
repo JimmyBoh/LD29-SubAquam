@@ -141,6 +141,8 @@ Player.prototype = Object.create(Phaser.Sprite.prototype);
 Player.prototype.constructor = Player;
 
 Player.prototype.update = function () {
+	this.wasUnderwater = this.isUnderwater;
+	this.wasAbovewater = this.isAbovewater;
 
 	this.isUnderwater = this.y > this.game.height;
 	this.isAbovewater = !this.isUnderwater;
@@ -152,9 +154,6 @@ Player.prototype.update = function () {
 	this._updateArrow();
 
 	this._updateInput();
-
-	this.wasUnderwater = this.isUnderwater;
-	this.wasAbovewater = this.isAbovewater;
 };
 
 Player.prototype._onInputDown = function (pointer, e) {
@@ -457,6 +456,19 @@ module.exports = Menu;
   			}
   		}
 
+  		var sounds = {
+  			'splash': 3,
+  			'treasure': 3,
+  			'death': 2
+  		};
+
+  		for (var s in sounds) {
+  			this[s + 'Sounds'] = [];
+  			for (var i = 0; i < sounds[s]; i++) {
+  				this[s + 'Sounds'][i] = this.game.add.audio(s + i);
+  			}
+  		}
+
   		this.player = new Player(this.game, 300, 300);
 
   		this.player.body.onBeginContact.add(this._playerHit, this);
@@ -512,7 +524,8 @@ module.exports = Menu;
   	_playerHit: function (body, shapeA, shapeB, equation) {
 
   		switch (true) {
-  			case body.sprite instanceof Treasure:
+  			case (body && body.sprite instanceof Treasure):
+  				this._playTreasure();
   				this.player.score += body.sprite.value;
   				body.sprite.exists = false;
   				break;
@@ -520,6 +533,7 @@ module.exports = Menu;
   	},
   	_checkPlayer: function () {
   		if (this.player.air <= 0) {
+  			this._playDeath();
   			this.game.score = this.player.score;
   			this.treasures.destroy();
   			this.clouds.destroy();
@@ -528,6 +542,23 @@ module.exports = Menu;
   			this.game.state.start('gameover');
   			return;
   		}
+
+  		if (this.player.wasAbovewater && this.player.isUnderwater) {
+  			this._playSplash();
+  		}
+  	},
+
+  	_playSplash: function () {
+  		var pick = this.game.rnd.integerInRange(0, 2);
+  		this.splashSounds[pick].play();
+  	},
+  	_playTreasure: function () {
+  		var pick = this.game.rnd.integerInRange(0, 2);
+  		this.treasureSounds[pick].play();
+  	},
+  	_playDeath: function () {
+  		var pick = this.game.rnd.integerInRange(0, 1);
+  		this.deathSounds[pick].play();
   	}
   };
 
@@ -543,19 +574,31 @@ function Preload() {
 Preload.prototype = {
 	preload: function () {
 		this.game.stage.backgroundColor = '#005AE1';
-		this.asset = this.add.sprite(this.width / 2, this.height / 2, 'preloader');
+		this.asset = this.add.sprite(this.game.width / 2, this.game.height / 2, 'preloader');
 		this.asset.anchor.setTo(0.5, 0.5);
 
 		this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 		this.load.setPreloadSprite(this.asset);
 
+		// Images
 		this.load.image('sky', 'assets/sky.png');
 		this.load.image('rotate', 'assets/rotate.png');
 		this.load.image('player', 'assets/player.png');
 		this.load.image('arrow', 'assets/arrow.png');
 
+		// Sprite sheets
 		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
 		this.load.spritesheet('treasure', 'assets/treasure.png', 40, 40, 3);
+
+		// Sounds
+		var sounds = {
+			'splash': 3,
+			'treasure': 3,
+			'death': 2
+		};
+		for (var s in sounds)
+			for (var i = 0; i < sounds[s]; i++)
+				this.load.audio(s + i, 'assets/' + s + i + '.wav');
 
 		this.buildAddons();
 	},
