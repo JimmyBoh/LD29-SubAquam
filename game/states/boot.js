@@ -22,7 +22,7 @@ Boot.prototype = {
             this.scale.maxHeight = 1080;
             //this.scale.pageAlignHorizontally = true;
             //this.scale.pageAlignVertically = true;
-            this.scale.setScreenSize(true);
+            //this.scale.setScreenSize(true);
         }
         else
         {
@@ -31,13 +31,13 @@ Boot.prototype = {
             this.scale.minHeight = 640;
             this.scale.maxWidth = 1920;
             this.scale.maxHeight = 1080;
-            this.scale.pageAlignHorizontally = true;
-            this.scale.pageAlignVertically = true;
+            //this.scale.pageAlignHorizontally = true;
+            //this.scale.pageAlignVertically = true;
             //this.scale.forceOrientation(true, false);
             //this.scale.hasResized.add(this.gameResized, this);
             //this.scale.enterIncorrectOrientation.add(this.enterIncorrectOrientation, this);
             //this.scale.leaveIncorrectOrientation.add(this.leaveIncorrectOrientation, this);
-            this.scale.setScreenSize(true);
+            //this.scale.setScreenSize(true);
         }
 
     this.game.input.maxPointers = 1;
