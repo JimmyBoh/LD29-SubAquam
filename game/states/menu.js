@@ -8,18 +8,13 @@ Menu.prototype = {
 	},
 	create: function () {
 
-		var style = { font: '65px Arial', fill: '#ffffff', align: 'center' };
+		var style = { font: '72px Arial Black', fill: '#0ff', align: 'center', stroke:'#000080', strokeThickness: 10 };
 		
-
-
-		this.titleText = this.game.add.text(this.game.world.centerX, 300, '\'Allo, \'Allo!', style);
+		this.titleText = this.game.add.text(this.game.width/2, 200, 'Aquam Adventure', style);
 		this.titleText.anchor.setTo(0.5, 0.5);
 
-		this.instructionsText = this.game.add.text(this.game.world.centerX, 400, 'Click anywhere to play "Click The Yeoman Logo"', { font: '16px Arial', fill: '#ffffff', align: 'center' });
+		this.instructionsText = this.game.add.text(this.game.width/2, 400, 'Click and drag to swim around!\nCollect all the treasures before your air runs out!', { font: '36px Arial', fill: '#ffffff', align: 'center' });
 		this.instructionsText.anchor.setTo(0.5, 0.5);
-
-		this.sprite.angle = -20;
-		this.game.add.tween(this.sprite).to({ angle: 20 }, 1000, Phaser.Easing.Linear.NONE, true, 0, 1000, true);
 	},
 	update: function () {
 		if (this.game.input.activePointer.justPressed()) {

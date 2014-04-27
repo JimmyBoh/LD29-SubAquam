@@ -2,6 +2,8 @@
 
 var Player = function (game, x, y) {
 	Phaser.Sprite.call(this, game, x, y, 'player', 0);
+	this.game.add.existing(this);
+
 	window.player = this;
 	this.anchor.setTo(0.9, 0.5);
 	this.game.physics.p2.enableBody(this, false);
@@ -34,8 +36,14 @@ var Player = function (game, x, y) {
 
 	this.limitDrag = false;
 
-	this._stopDragging();
+	this.maxAir = 15;
+	this.air = this.maxAir;
 
+	this._createAirBar();
+
+	this._createScore();
+
+	this._stopDragging();
 	this.game.camera.follow(this, Phaser.Camera.PLATFORMER);
 };
 
@@ -44,25 +52,16 @@ Player.prototype.constructor = Player;
 
 Player.prototype.update = function () {
 
-	//this.anchor.setTo(0.9, 0.5);
-
 	this.isUnderwater = this.y > this.game.height;
 	this.isAbovewater = !this.isUnderwater;
 
-	if (this.limitDrag) {
-		if (this.wasUnderwater && this.isAbovewater)
-			this._stopDragging();
-
-		if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
-			this._startDragging(this.game.input.activePointer);
-	}
+	this._updateAir();
+	this._updateScore();
 
 	this._updateGravity();
 	this._updateArrow();
 
 	this._updateInput();
-
-	this._fixVelocity();
 
 	this.wasUnderwater = this.isUnderwater;
 	this.wasAbovewater = this.isAbovewater;
@@ -80,6 +79,14 @@ Player.prototype._updateInput = function () {
 	if (!this.game.input.activePointer.isDown && this.isDragging) {
 		this._stopDragging();
 	}
+
+	if (this.limitDrag) {
+		if (this.wasUnderwater && this.isAbovewater)
+			this._stopDragging();
+
+		if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
+			this._startDragging(this.game.input.activePointer);
+	}
 }
 
 Player.prototype._startDragging = function (pointer) {
@@ -91,8 +98,6 @@ Player.prototype._startDragging = function (pointer) {
 	this.arrow.y = this.arrow.body.y = pointer.worldY;
 
 	this.arrow.alpha = 1;
-
-	//this.body.angularVelocity = 0;
 
 	// Enable the spring
 	this.spring.stiffness = this.stiffness;
@@ -142,30 +147,57 @@ Player.prototype._updateGravity = function () {
 	this.prevY = this.y;
 }
 
-Player.prototype._fixVelocity = function () {
-	if (this.body.velocity.y > 0) {
-		if (this.body.velocity.y > this.maxVelocity.y) {
-			//this.body.velocity.y = this.maxVelocity.y;
-			//console.log('maxed y');
-		}
-	} else if (this.body.velocity.y < 0) {
-		if (this.body.velocity.y < -this.maxVelocity.y) {
-			//this.body.velocity.y = -this.maxVelocity.y;
-			//console.log('maxed y');
-		}
+Player.prototype._createAirBar = function () {
+	this.airBar = this.game.add.bitmapData(this.game.width, this.game.height);
+
+	this.airBar.context.fillStyle = 'rgb(255, 0, 0)';
+
+	//	Add the bmd as a texture to an Image object.
+	//	If we don't do this nothing will render on screen.
+	var airSprite = this.game.add.sprite(0, 0, this.airBar);
+	airSprite.fixedToCamera = true;
+}
+
+Player.prototype._updateAir = function () {
+	if (this.isUnderwater) {
+		this.air -= (this.game.time.elapsed / 1000);
+
+		if (this.air < 0)
+			this.air = 0;
+	}
+	else {
+		this.air += (this.maxAir / 3) * (this.game.time.elapsed / 1000);
+		if (this.air >= this.maxAir)
+			this.air = this.maxAir;
 	}
 
-	if (this.body.velocity.x > 0) {
-		if (this.body.velocity.x > this.maxVelocity.x) {
-			//this.body.velocity.x = this.maxVelocity.x;
-			//console.log('maxed x');
-		}
-	} else if (this.body.velocity.x < 0) {
-		if (this.body.velocity.x < -this.maxVelocity.x) {
-			//this.body.velocity.x = -this.maxVelocity.x;
-			//console.log('maxed x');
-		}
-	}
+	var barX = 1280 - (40 + 40);
+	var barY = 40;
+
+	var barHeight = 320;
+	var barWidth = 40;
+	var blueHeight = (this.air / this.maxAir) * barHeight;
+	var redHeight = barHeight - blueHeight;
+
+	this.airBar.context.fillStyle = 'rgb(255, 0, 0)';
+	this.airBar.context.fillRect(barX, barY, barWidth, redHeight);
+
+	this.airBar.context.fillStyle = 'rgb(0, 0, 255)';
+	this.airBar.context.fillRect(barX, barY + redHeight, barWidth, blueHeight);
+	this.airBar.dirty = true;
+}
+
+Player.prototype._createScore = function(){
+	this.score = 0;
+	
+	var scoreStyle = { font: "48px Arial Black", fill: '#000', stroke: '#fff', strokeThickness: 3,  align: 'center' };
+	this.scoreText = this.game.add.text(1280 - (80 + 40), 40, "SCORE: 0", scoreStyle);
+	this.scoreText.fixedToCamera = true;
+	this.scoreText.anchor.set(1, 0);
+}
+
+Player.prototype._updateScore = function () {
+	this.scoreText.setText("SCORE: " + this.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 }
 
 module.exports = Player;

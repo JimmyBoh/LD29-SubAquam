@@ -1,7 +1,7 @@
 'use strict';
 
-var Treasure = function (game, x, y) {
-	Phaser.Sprite.call(this, game, x, y, 'treasure', 0);
+var Treasure = function (game) {
+	Phaser.Sprite.call(this, game, -100, -100, 'treasure', 0);
 
 	this.anchor.setTo(0.5, 0.5);
 
@@ -10,7 +10,6 @@ var Treasure = function (game, x, y) {
 
 	this.body.allowGravity = false;
 	this.body.static = true;
-
 };
 
 Treasure.prototype = Object.create(Phaser.Sprite.prototype);
@@ -18,14 +17,14 @@ Treasure.prototype.constructor = Treasure;
 
 Treasure.prototype.update = function() {
   
-  
-  
 };
 
 Treasure.prototype.reset = function (x, y) {
-	
-	this.x = x;
-	this.y = y;
+
+	this.x = this.body.x = x;
+	this.y = this.body.y = y;
+
+	this.value = Math.round(100 * (this.y / this.game.height));
 
 	this.frame = this.game.rnd.integerInRange(0, 2);
 

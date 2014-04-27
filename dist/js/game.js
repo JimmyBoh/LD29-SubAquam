@@ -92,6 +92,8 @@ module.exports = Cloud;
 
 var Player = function (game, x, y) {
 	Phaser.Sprite.call(this, game, x, y, 'player', 0);
+	this.game.add.existing(this);
+
 	window.player = this;
 	this.anchor.setTo(0.9, 0.5);
 	this.game.physics.p2.enableBody(this, false);
@@ -124,8 +126,14 @@ var Player = function (game, x, y) {
 
 	this.limitDrag = false;
 
-	this._stopDragging();
+	this.maxAir = 15;
+	this.air = this.maxAir;
 
+	this._createAirBar();
+
+	this._createScore();
+
+	this._stopDragging();
 	this.game.camera.follow(this, Phaser.Camera.PLATFORMER);
 };
 
@@ -134,25 +142,16 @@ Player.prototype.constructor = Player;
 
 Player.prototype.update = function () {
 
-	//this.anchor.setTo(0.9, 0.5);
-
 	this.isUnderwater = this.y > this.game.height;
 	this.isAbovewater = !this.isUnderwater;
 
-	if (this.limitDrag) {
-		if (this.wasUnderwater && this.isAbovewater)
-			this._stopDragging();
-
-		if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
-			this._startDragging(this.game.input.activePointer);
-	}
+	this._updateAir();
+	this._updateScore();
 
 	this._updateGravity();
 	this._updateArrow();
 
 	this._updateInput();
-
-	this._fixVelocity();
 
 	this.wasUnderwater = this.isUnderwater;
 	this.wasAbovewater = this.isAbovewater;
@@ -170,6 +169,14 @@ Player.prototype._updateInput = function () {
 	if (!this.game.input.activePointer.isDown && this.isDragging) {
 		this._stopDragging();
 	}
+
+	if (this.limitDrag) {
+		if (this.wasUnderwater && this.isAbovewater)
+			this._stopDragging();
+
+		if (this.wasAbovewater && this.isUnderwater && this.game.input.activePointer.isDown)
+			this._startDragging(this.game.input.activePointer);
+	}
 }
 
 Player.prototype._startDragging = function (pointer) {
@@ -181,8 +188,6 @@ Player.prototype._startDragging = function (pointer) {
 	this.arrow.y = this.arrow.body.y = pointer.worldY;
 
 	this.arrow.alpha = 1;
-
-	//this.body.angularVelocity = 0;
 
 	// Enable the spring
 	this.spring.stiffness = this.stiffness;
@@ -232,30 +237,57 @@ Player.prototype._updateGravity = function () {
 	this.prevY = this.y;
 }
 
-Player.prototype._fixVelocity = function () {
-	if (this.body.velocity.y > 0) {
-		if (this.body.velocity.y > this.maxVelocity.y) {
-			//this.body.velocity.y = this.maxVelocity.y;
-			//console.log('maxed y');
-		}
-	} else if (this.body.velocity.y < 0) {
-		if (this.body.velocity.y < -this.maxVelocity.y) {
-			//this.body.velocity.y = -this.maxVelocity.y;
-			//console.log('maxed y');
-		}
+Player.prototype._createAirBar = function () {
+	this.airBar = this.game.add.bitmapData(this.game.width, this.game.height);
+
+	this.airBar.context.fillStyle = 'rgb(255, 0, 0)';
+
+	//	Add the bmd as a texture to an Image object.
+	//	If we don't do this nothing will render on screen.
+	var airSprite = this.game.add.sprite(0, 0, this.airBar);
+	airSprite.fixedToCamera = true;
+}
+
+Player.prototype._updateAir = function () {
+	if (this.isUnderwater) {
+		this.air -= (this.game.time.elapsed / 1000);
+
+		if (this.air < 0)
+			this.air = 0;
+	}
+	else {
+		this.air += (this.maxAir / 3) * (this.game.time.elapsed / 1000);
+		if (this.air >= this.maxAir)
+			this.air = this.maxAir;
 	}
 
-	if (this.body.velocity.x > 0) {
-		if (this.body.velocity.x > this.maxVelocity.x) {
-			//this.body.velocity.x = this.maxVelocity.x;
-			//console.log('maxed x');
-		}
-	} else if (this.body.velocity.x < 0) {
-		if (this.body.velocity.x < -this.maxVelocity.x) {
-			//this.body.velocity.x = -this.maxVelocity.x;
-			//console.log('maxed x');
-		}
-	}
+	var barX = 1280 - (40 + 40);
+	var barY = 40;
+
+	var barHeight = 320;
+	var barWidth = 40;
+	var blueHeight = (this.air / this.maxAir) * barHeight;
+	var redHeight = barHeight - blueHeight;
+
+	this.airBar.context.fillStyle = 'rgb(255, 0, 0)';
+	this.airBar.context.fillRect(barX, barY, barWidth, redHeight);
+
+	this.airBar.context.fillStyle = 'rgb(0, 0, 255)';
+	this.airBar.context.fillRect(barX, barY + redHeight, barWidth, blueHeight);
+	this.airBar.dirty = true;
+}
+
+Player.prototype._createScore = function(){
+	this.score = 0;
+	
+	var scoreStyle = { font: "48px Arial Black", fill: '#000', stroke: '#fff', strokeThickness: 3,  align: 'center' };
+	this.scoreText = this.game.add.text(1280 - (80 + 40), 40, "SCORE: 0", scoreStyle);
+	this.scoreText.fixedToCamera = true;
+	this.scoreText.anchor.set(1, 0);
+}
+
+Player.prototype._updateScore = function () {
+	this.scoreText.setText("SCORE: " + this.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 }
 
 module.exports = Player;
@@ -263,8 +295,8 @@ module.exports = Player;
 },{}],4:[function(require,module,exports){
 'use strict';
 
-var Treasure = function (game, x, y) {
-	Phaser.Sprite.call(this, game, x, y, 'treasure', 0);
+var Treasure = function (game) {
+	Phaser.Sprite.call(this, game, -100, -100, 'treasure', 0);
 
 	this.anchor.setTo(0.5, 0.5);
 
@@ -273,7 +305,6 @@ var Treasure = function (game, x, y) {
 
 	this.body.allowGravity = false;
 	this.body.static = true;
-
 };
 
 Treasure.prototype = Object.create(Phaser.Sprite.prototype);
@@ -281,14 +312,14 @@ Treasure.prototype.constructor = Treasure;
 
 Treasure.prototype.update = function() {
   
-  
-  
 };
 
 Treasure.prototype.reset = function (x, y) {
-	
-	this.x = x;
-	this.y = y;
+
+	this.x = this.body.x = x;
+	this.y = this.body.y = y;
+
+	this.value = Math.round(100 * (this.y / this.game.height));
 
 	this.frame = this.game.rnd.integerInRange(0, 2);
 
@@ -328,25 +359,25 @@ module.exports = Boot;
 function GameOver() {}
 
 GameOver.prototype = {
-  preload: function () {
+	preload: function () {
 
-  },
-  create: function () {
-    var style = { font: '65px Arial', fill: '#ffffff', align: 'center'};
-    this.titleText = this.game.add.text(this.game.world.centerX,100, 'Game Over!', style);
-    this.titleText.anchor.setTo(0.5, 0.5);
+	},
+	create: function () {
+		var style = { font: '64px Arial Black', fill: '#ffffff', align: 'center' };
+		this.titleText = this.game.add.text(this.game.width / 2, 100, 'Game Over!', style);
+		this.titleText.anchor.setTo(0.5, 0.5);
 
-    this.congratsText = this.game.add.text(this.game.world.centerX, 200, 'You Win!', { font: '32px Arial', fill: '#ffffff', align: 'center'});
-    this.congratsText.anchor.setTo(0.5, 0.5);
+		this.congratsText = this.game.add.text(this.game.width / 2, 300, 'Your Score: ' + this.game.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), { font: '48px Arial Black', fill: '#ffffff', align: 'center' });
+		this.congratsText.anchor.setTo(0.5, 0.5);
 
-    this.instructionText = this.game.add.text(this.game.world.centerX, 300, 'Click To Play Again', { font: '16px Arial', fill: '#ffffff', align: 'center'});
-    this.instructionText.anchor.setTo(0.5, 0.5);
-  },
-  update: function () {
-    if(this.game.input.activePointer.justPressed()) {
-      this.game.state.start('play');
-    }
-  }
+		this.instructionText = this.game.add.text(this.game.width / 2, 600, 'Click To Restart!', { font: '36px Arial Black', fill: '#ffffff', align: 'center' });
+		this.instructionText.anchor.setTo(0.5, 0.5);
+	},
+	update: function () {
+		if (this.game.input.activePointer.justPressed()) {
+			this.game.state.start('menu');
+		}
+	}
 };
 module.exports = GameOver;
 
@@ -361,18 +392,13 @@ Menu.prototype = {
 	},
 	create: function () {
 
-		var style = { font: '65px Arial', fill: '#ffffff', align: 'center' };
+		var style = { font: '72px Arial Black', fill: '#0ff', align: 'center', stroke:'#000080', strokeThickness: 10 };
 		
-
-
-		this.titleText = this.game.add.text(this.game.world.centerX, 300, '\'Allo, \'Allo!', style);
+		this.titleText = this.game.add.text(this.game.width/2, 200, 'Aquam Adventure', style);
 		this.titleText.anchor.setTo(0.5, 0.5);
 
-		this.instructionsText = this.game.add.text(this.game.world.centerX, 400, 'Click anywhere to play "Click The Yeoman Logo"', { font: '16px Arial', fill: '#ffffff', align: 'center' });
+		this.instructionsText = this.game.add.text(this.game.width/2, 400, 'Click and drag to swim around!\nCollect all the treasures before your air runs out!', { font: '36px Arial', fill: '#ffffff', align: 'center' });
 		this.instructionsText.anchor.setTo(0.5, 0.5);
-
-		this.sprite.angle = -20;
-		this.game.add.tween(this.sprite).to({ angle: 20 }, 1000, Phaser.Easing.Linear.NONE, true, 0, 1000, true);
 	},
 	update: function () {
 		if (this.game.input.activePointer.justPressed()) {
@@ -394,9 +420,11 @@ module.exports = Menu;
 
   Play.prototype = {
   	create: function () {
+  		var worldWidthInScreens = 3;
+  		var worldHeightInScreens = 6;
 
-  		var worldWidth = this.game.width * 2;
-  		var worldHeight = this.game.height * 3;
+  		var worldWidth = this.game.width * worldWidthInScreens;
+  		var worldHeight = this.game.height * worldHeightInScreens;
 
   		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
@@ -416,13 +444,10 @@ module.exports = Menu;
   			this._generateCloud(true);
   		}
 
-  		this.player = new Player(this.game, 300, 300);
-  		this.game.add.existing(this.player);
-
   		this.treasures = this.game.add.group();
 
-  		var rows = 6;
-  		var cols = 6;
+  		var rows = 2 * worldHeightInScreens;
+  		var cols = 3 * worldWidthInScreens;
 
   		for (var row = 3; row < rows; row++) {
   			for (var col = 1; col < cols; col++) {
@@ -431,12 +456,18 @@ module.exports = Menu;
   				this._generateTreasure(x, y);
   			}
   		}
+
+  		this.player = new Player(this.game, 300, 300);
+
+  		this.player.body.onBeginContact.add(this._playerHit, this);
   	},
   	update: function () {
   		this.game.stage.backgroundColor = this._calculateDepthColor();
+
+  		this._checkPlayer();
   	},
   	render: function () {
-  		
+
   	},
   	_generateCloud: function (isIntial) {
   		var cloud = this.clouds.getFirstExists(false);
@@ -450,7 +481,7 @@ module.exports = Menu;
 
   		return cloud;
   	},
-	_generateTreasure: function (x, y) {
+  	_generateTreasure: function (x, y) {
   		var treasure = this.treasures.getFirstExists(false);
 
   		if (!treasure) {
@@ -463,8 +494,8 @@ module.exports = Menu;
   		return treasure;
   	},
   	_calculateDepthColor: function () {
-  		var hue = 153 / 255; // Static
-  		var saturation = 1.0; // Static
+  		var hue = 153 / 255; // STATIC
+  		var saturation = 1.0; // STATIC
   		var lightness = 113 / 255; // Ranges from 0 to 113
 
   		if (this.game.camera.y > this.game.height)
@@ -477,6 +508,26 @@ module.exports = Menu;
   		}
 
   		return color;
+  	},
+  	_playerHit: function (body, shapeA, shapeB, equation) {
+
+  		switch (true) {
+  			case body.sprite instanceof Treasure:
+  				this.player.score += body.sprite.value;
+  				body.sprite.exists = false;
+  				break;
+  		}
+  	},
+  	_checkPlayer: function () {
+  		if (this.player.air <= 0) {
+  			this.game.score = this.player.score;
+  			this.treasures.destroy();
+  			this.clouds.destroy();
+  			this.player.destroy();
+
+  			this.game.state.start('gameover');
+  			return;
+  		}
   	}
   };
 
@@ -513,7 +564,7 @@ Preload.prototype = {
 	},
 	update: function () {
 		if (!!this.ready) {
-			this.game.state.start('play');
+			this.game.state.start('menu');
 		}
 	},
 	onLoadComplete: function () {

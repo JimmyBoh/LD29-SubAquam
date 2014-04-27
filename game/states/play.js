@@ -8,9 +8,11 @@
 
   Play.prototype = {
   	create: function () {
+  		var worldWidthInScreens = 3;
+  		var worldHeightInScreens = 6;
 
-  		var worldWidth = this.game.width * 2;
-  		var worldHeight = this.game.height * 3;
+  		var worldWidth = this.game.width * worldWidthInScreens;
+  		var worldHeight = this.game.height * worldHeightInScreens;
 
   		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
@@ -30,13 +32,10 @@
   			this._generateCloud(true);
   		}
 
-  		this.player = new Player(this.game, 300, 300);
-  		this.game.add.existing(this.player);
-
   		this.treasures = this.game.add.group();
 
-  		var rows = 6;
-  		var cols = 6;
+  		var rows = 2 * worldHeightInScreens;
+  		var cols = 3 * worldWidthInScreens;
 
   		for (var row = 3; row < rows; row++) {
   			for (var col = 1; col < cols; col++) {
@@ -45,12 +44,18 @@
   				this._generateTreasure(x, y);
   			}
   		}
+
+  		this.player = new Player(this.game, 300, 300);
+
+  		this.player.body.onBeginContact.add(this._playerHit, this);
   	},
   	update: function () {
   		this.game.stage.backgroundColor = this._calculateDepthColor();
+
+  		this._checkPlayer();
   	},
   	render: function () {
-  		
+
   	},
   	_generateCloud: function (isIntial) {
   		var cloud = this.clouds.getFirstExists(false);
@@ -64,7 +69,7 @@
 
   		return cloud;
   	},
-	_generateTreasure: function (x, y) {
+  	_generateTreasure: function (x, y) {
   		var treasure = this.treasures.getFirstExists(false);
 
   		if (!treasure) {
@@ -77,8 +82,8 @@
   		return treasure;
   	},
   	_calculateDepthColor: function () {
-  		var hue = 153 / 255; // Static
-  		var saturation = 1.0; // Static
+  		var hue = 153 / 255; // STATIC
+  		var saturation = 1.0; // STATIC
   		var lightness = 113 / 255; // Ranges from 0 to 113
 
   		if (this.game.camera.y > this.game.height)
@@ -91,6 +96,26 @@
   		}
 
   		return color;
+  	},
+  	_playerHit: function (body, shapeA, shapeB, equation) {
+
+  		switch (true) {
+  			case body.sprite instanceof Treasure:
+  				this.player.score += body.sprite.value;
+  				body.sprite.exists = false;
+  				break;
+  		}
+  	},
+  	_checkPlayer: function () {
+  		if (this.player.air <= 0) {
+  			this.game.score = this.player.score;
+  			this.treasures.destroy();
+  			this.clouds.destroy();
+  			this.player.destroy();
+
+  			this.game.state.start('gameover');
+  			return;
+  		}
   	}
   };
 
