@@ -55,6 +55,7 @@
   			this[s + 'Sounds'] = [];
   			for (var i = 0; i < sounds[s]; i++) {
   				this[s + 'Sounds'][i] = this.game.add.audio(s + i);
+  				//this[s + 'Sounds'][i].volume = 0.5;
   			}
   		}
 
@@ -132,22 +133,28 @@
   			return;
   		}
 
-  		if (this.player.wasAbovewater && this.player.isUnderwater) {
-  			this._playSplash();
+  		if (this.player.wasAbovewater === this.player.isUnderwater && Math.abs(this.player.body.velocity.y) > 2) {
+  			var volume = Math.abs(this.player.body.velocity.y) / 50;
+  			if (volume > 0.5) volume = 0.5;
+  			this._playSplash(volume);
   		}
   	},
 
-  	_playSplash: function () {
-  		var pick = this.game.rnd.integerInRange(0, 2);
-  		this.splashSounds[pick].play();
+  	_playSplash: function (volume) {
+  		this._playSound('splash', 3, volume);
   	},
-  	_playTreasure: function () {
+  	_playTreasure: function (volume) {
   		var pick = this.game.rnd.integerInRange(0, 2);
-  		this.treasureSounds[pick].play();
+  		this.treasureSounds[pick].play('', 0, volume);
   	},
-  	_playDeath: function () {
+  	_playDeath: function (volume) {
   		var pick = this.game.rnd.integerInRange(0, 1);
-  		this.deathSounds[pick].play();
+  		this.deathSounds[pick].play('', 0, volume);
+  	},
+  	_playSound: function (name, number, volume) {
+  		volume = volume || 0.5;
+  		var pick = this.game.rnd.integerInRange(0, number - 1);
+  		this[name + 'Sounds'][pick].play('', 0, volume);
   	}
   };
 
