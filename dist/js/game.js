@@ -345,6 +345,33 @@ Boot.prototype = {
 	window.Game = this.game;
 	this.game.stage.disableVisibilityChange = true;
 
+	if (this.game.device.desktop)
+        {
+            this.scale.fullscreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+            this.scale.minWidth = 1280;
+            this.scale.minHeight = 720;
+            this.scale.maxWidth = 1920;
+            this.scale.maxHeight = 1080;
+            //this.scale.pageAlignHorizontally = true;
+            //this.scale.pageAlignVertically = true;
+            this.scale.setScreenSize(true);
+        }
+        else
+        {
+            this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            this.scale.minWidth = 1136;
+            this.scale.minHeight = 640;
+            this.scale.maxWidth = 1920;
+            this.scale.maxHeight = 1080;
+            this.scale.pageAlignHorizontally = true;
+            this.scale.pageAlignVertically = true;
+            this.scale.forceOrientation(true, false);
+            //this.scale.hasResized.add(this.gameResized, this);
+            //this.scale.enterIncorrectOrientation.add(this.enterIncorrectOrientation, this);
+            //this.scale.leaveIncorrectOrientation.add(this.leaveIncorrectOrientation, this);
+            this.scale.setScreenSize(true);
+        }
+
     this.game.input.maxPointers = 1;
     this.game.state.start('preload');
   }
@@ -366,11 +393,22 @@ GameOver.prototype = {
 		this.titleText = this.game.add.text(this.game.width / 2, 100, 'Game Over!', style);
 		this.titleText.anchor.setTo(0.5, 0.5);
 
-		this.congratsText = this.game.add.text(this.game.width / 2, 300, 'Your Score: ' + this.game.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), { font: '48px Arial Black', fill: '#ffffff', align: 'center' });
-		this.congratsText.anchor.setTo(0.5, 0.5);
+		var scoreStyle = { font: '48px Arial Black', fill: '#ffffff', align: 'center' };
+		this.scoreText = this.game.add.text(this.game.width / 2, 300, 'Your Score: ' + this.game.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), scoreStyle);
+		this.scoreText.anchor.setTo(0.5, 0.5);
+
+		var highscoreText = this.game.score > this.game.highscore ? 'NEW HIGH SCORE!' : 'High Score: ' + this.game.highscore.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+		this.highText = this.game.add.text(this.game.width / 2, 400, highscoreText, scoreStyle);
+		this.highText.anchor.setTo(0.5, 0.5);
 
 		this.instructionText = this.game.add.text(this.game.width / 2, 600, 'Click To Restart!', { font: '36px Arial Black', fill: '#ffffff', align: 'center' });
 		this.instructionText.anchor.setTo(0.5, 0.5);
+
+		this.game.highscore = Math.max(this.game.highscore, this.game.score);
+		if (window.localStorage)
+			window.localStorage['highscore'] = this.game.highscore;
+
 	},
 	update: function () {
 		if (this.game.input.activePointer.justPressed()) {
@@ -538,6 +576,7 @@ module.exports = Menu;
   		if (this.player.air <= 0) {
   			this._playDeath();
   			this.game.score = this.player.score;
+
   			this.treasures.destroy();
   			this.clouds.destroy();
   			this.player.destroy();
@@ -609,6 +648,15 @@ Preload.prototype = {
 				this.load.audio(s + i, ['assets/' + s + i + '.mp3', 'assets/' + s + i + '.ogg']);
 
 		this.buildAddons();
+
+		if (window.localStorage) {
+			this.game.highscore = parseInt(window.localStorage['highscore']);
+
+			if (this.game.highscore === null) {
+				this.game.highscore = 0;
+				window.localStorage['highscore'] = 0;
+			}
+		}
 	},
 	create: function () {
 		this.asset.cropEnabled = false;

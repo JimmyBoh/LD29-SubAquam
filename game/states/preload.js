@@ -35,6 +35,15 @@ Preload.prototype = {
 				this.load.audio(s + i, ['assets/' + s + i + '.mp3', 'assets/' + s + i + '.ogg']);
 
 		this.buildAddons();
+
+		if (window.localStorage) {
+			this.game.highscore = parseInt(window.localStorage['highscore']);
+
+			if (this.game.highscore === null) {
+				this.game.highscore = 0;
+				window.localStorage['highscore'] = 0;
+			}
+		}
 	},
 	create: function () {
 		this.asset.cropEnabled = false;

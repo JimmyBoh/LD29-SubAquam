@@ -125,6 +125,7 @@
   		if (this.player.air <= 0) {
   			this._playDeath();
   			this.game.score = this.player.score;
+
   			this.treasures.destroy();
   			this.clouds.destroy();
   			this.player.destroy();
