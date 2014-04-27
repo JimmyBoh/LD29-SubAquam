@@ -7,6 +7,7 @@ Menu.prototype = {
 
 	},
 	create: function () {
+		this.game.stage.backgroundColor = '#005AE1';
 
 		var style = { font: '72px Arial Black', fill: '#0ff', align: 'center', stroke:'#000080', strokeThickness: 10 };
 		

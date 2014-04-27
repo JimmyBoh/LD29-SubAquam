@@ -129,8 +129,9 @@ var Player = function (game, x, y) {
 	this.maxAir = 15;
 	this.air = this.maxAir;
 
-	this._createAirBar();
 
+	this._createHurtOverlay();
+	this._createAirBar();
 	this._createScore();
 
 	this._stopDragging();
@@ -155,6 +156,11 @@ Player.prototype.update = function () {
 
 	this._updateInput();
 };
+
+Player.prototype.createGUI = function(){
+	this._createAirBar();
+	this._createScore();
+}
 
 Player.prototype._onInputDown = function (pointer, e) {
 	this._startDragging(pointer);
@@ -263,9 +269,11 @@ Player.prototype._updateAir = function () {
 	var barX = 1280 - (40 + 40);
 	var barY = 40;
 
+	var airRatio = this.air / this.maxAir;
+
 	var barHeight = 320;
 	var barWidth = 40;
-	var blueHeight = (this.air / this.maxAir) * barHeight;
+	var blueHeight = airRatio * barHeight;
 	var redHeight = barHeight - blueHeight;
 
 	this.airBar.context.fillStyle = 'rgb(255, 0, 0)';
@@ -274,6 +282,12 @@ Player.prototype._updateAir = function () {
 	this.airBar.context.fillStyle = 'rgb(0, 0, 255)';
 	this.airBar.context.fillRect(barX, barY + redHeight, barWidth, blueHeight);
 	this.airBar.dirty = true;
+
+	var hurtAppears = 0.333;
+	if (airRatio <= hurtAppears)
+		this.hurtOverlay.alpha = 1 - (airRatio / hurtAppears);
+	else
+		this.hurtOverlay.alpha = 0;
 }
 
 Player.prototype._createScore = function(){
@@ -287,6 +301,12 @@ Player.prototype._createScore = function(){
 
 Player.prototype._updateScore = function () {
 	this.scoreText.setText("SCORE: " + this.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+}
+
+Player.prototype._createHurtOverlay = function () {
+	this.hurtOverlay = this.game.add.sprite(0, 0, 'hurt');
+	this.hurtOverlay.alpha = 0;
+	this.hurtOverlay.fixedToCamera = true;
 }
 
 module.exports = Player;
@@ -337,17 +357,18 @@ function Boot() {
 }
 
 Boot.prototype = {
-  preload: function() {
-    this.load.image('preloader', 'assets/preloader.gif');
-  },
-  create: function() {
-	
-	window.Game = this.game;
-	this.game.stage.disableVisibilityChange = true;
+	preload: function () {
+		this.load.image('preloader', 'assets/preloader.gif');
+		this.load.image('jimmyboh', 'assets/splashscreen.png');
+	},
+	create: function () {
 
-    this.game.input.maxPointers = 1;
-    this.game.state.start('preload');
-  }
+		window.Game = this.game;
+		this.game.stage.disableVisibilityChange = true;
+
+		this.game.input.maxPointers = 1;
+		this.game.state.start('preload');
+	}
 };
 
 module.exports = Boot;
@@ -401,6 +422,7 @@ Menu.prototype = {
 
 	},
 	create: function () {
+		this.game.stage.backgroundColor = '#005AE1';
 
 		var style = { font: '72px Arial Black', fill: '#0ff', align: 'center', stroke:'#000080', strokeThickness: 10 };
 		
@@ -483,9 +505,13 @@ module.exports = Menu;
   			}
   		}
 
-  		this.player = new Player(this.game, 300, 300);
 
+
+  		this.player = new Player(this.game, 300, 300);
   		this.player.body.onBeginContact.add(this._playerHit, this);
+
+  		this._createMuteButton();
+
   	},
   	update: function () {
   		this.game.stage.backgroundColor = this._calculateDepthColor();
@@ -579,6 +605,16 @@ module.exports = Menu;
   		volume = volume || 0.5;
   		var pick = this.game.rnd.integerInRange(0, number - 1);
   		this[name + 'Sounds'][pick].play('', 0, volume);
+  	},
+  	_createMuteButton: function () {
+  		this.muteButton = this.game.add.sprite(20, 20, 'mute', 0);
+  		this.muteButton.fixedToCamera = true;
+  		this.muteButton.inputEnabled = true;
+  		this.muteButton.events.onInputDown.add(function () {
+  			this.game.sound.mute = !this.game.sound.mute;
+  			this.muteButton.frame = this.game.sound.mute ? 1 : 0;
+  			return false;
+  		}, this);
   	}
   };
 
@@ -593,22 +629,34 @@ function Preload() {
 
 Preload.prototype = {
 	preload: function () {
-		this.game.stage.backgroundColor = '#005AE1';
-		this.asset = this.add.sprite(this.game.width / 2, this.game.height / 2, 'preloader');
-		this.asset.anchor.setTo(0.5, 0.5);
+		this.ready = false;
+		this.loaded = false;
+
+		this.game.time.events.add(Phaser.Timer.SECOND * 1, this.timerComplete, this);
+
+		this.game.add.sprite(0, 0, 'jimmyboh');
+
+		this.loadingBar = this.add.sprite(this.game.width / 2, 0, 'preloader');
+		this.loadingBar.anchor.setTo(0.5, 0);
 
 		this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
-		this.load.setPreloadSprite(this.asset);
+		this.load.setPreloadSprite(this.loadingBar);
 
 		// Images
-		this.load.image('sky', 'assets/sky.png');
-		this.load.image('rotate', 'assets/rotate.png');
-		this.load.image('player', 'assets/player.png');
-		this.load.image('arrow', 'assets/arrow.png');
+		var images = ['sky', 'rotate', 'player', 'arrow', 'hurt'];
+		for (var i in images)
+			this.load.image(images[i], 'assets/' + images[i] + '.png');
+
+		//this.load.image('sky', 'assets/sky.png');
+		//this.load.image('rotate', 'assets/rotate.png');
+		//this.load.image('player', 'assets/player.png');
+		//this.load.image('arrow', 'assets/arrow.png');
+		//this.load.image('hurt', 'assets/hurt.png');
 
 		// Sprite sheets
 		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
 		this.load.spritesheet('treasure', 'assets/treasure.png', 40, 40, 3);
+		this.load.spritesheet('mute', 'assets/mute.png', 90, 90, 2);
 
 		// Sounds
 		var sounds = {
@@ -632,14 +680,18 @@ Preload.prototype = {
 		}
 	},
 	create: function () {
-		this.asset.cropEnabled = false;
+		this.loadingBar.cropEnabled = false;
 	},
 	update: function () {
-		if (!!this.ready) {
+		if (this.loaded && this.ready) {
 			this.game.state.start('menu');
 		}
 	},
 	onLoadComplete: function () {
+		this.loaded = true;
+		this.loadingBar.destroy();
+	},
+	timerComplete: function () {
 		this.ready = true;
 	},
 	buildAddons: function () {

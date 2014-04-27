@@ -59,9 +59,13 @@
   			}
   		}
 
-  		this.player = new Player(this.game, 300, 300);
 
+
+  		this.player = new Player(this.game, 300, 300);
   		this.player.body.onBeginContact.add(this._playerHit, this);
+
+  		this._createMuteButton();
+
   	},
   	update: function () {
   		this.game.stage.backgroundColor = this._calculateDepthColor();
@@ -155,6 +159,16 @@
   		volume = volume || 0.5;
   		var pick = this.game.rnd.integerInRange(0, number - 1);
   		this[name + 'Sounds'][pick].play('', 0, volume);
+  	},
+  	_createMuteButton: function () {
+  		this.muteButton = this.game.add.sprite(20, 20, 'mute', 0);
+  		this.muteButton.fixedToCamera = true;
+  		this.muteButton.inputEnabled = true;
+  		this.muteButton.events.onInputDown.add(function () {
+  			this.game.sound.mute = !this.game.sound.mute;
+  			this.muteButton.frame = this.game.sound.mute ? 1 : 0;
+  			return false;
+  		}, this);
   	}
   };
 

@@ -7,22 +7,34 @@ function Preload() {
 
 Preload.prototype = {
 	preload: function () {
-		this.game.stage.backgroundColor = '#005AE1';
-		this.asset = this.add.sprite(this.game.width / 2, this.game.height / 2, 'preloader');
-		this.asset.anchor.setTo(0.5, 0.5);
+		this.ready = false;
+		this.loaded = false;
+
+		this.game.time.events.add(Phaser.Timer.SECOND * 1, this.timerComplete, this);
+
+		this.game.add.sprite(0, 0, 'jimmyboh');
+
+		this.loadingBar = this.add.sprite(this.game.width / 2, 0, 'preloader');
+		this.loadingBar.anchor.setTo(0.5, 0);
 
 		this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
-		this.load.setPreloadSprite(this.asset);
+		this.load.setPreloadSprite(this.loadingBar);
 
 		// Images
-		this.load.image('sky', 'assets/sky.png');
-		this.load.image('rotate', 'assets/rotate.png');
-		this.load.image('player', 'assets/player.png');
-		this.load.image('arrow', 'assets/arrow.png');
+		var images = ['sky', 'rotate', 'player', 'arrow', 'hurt'];
+		for (var i in images)
+			this.load.image(images[i], 'assets/' + images[i] + '.png');
+
+		//this.load.image('sky', 'assets/sky.png');
+		//this.load.image('rotate', 'assets/rotate.png');
+		//this.load.image('player', 'assets/player.png');
+		//this.load.image('arrow', 'assets/arrow.png');
+		//this.load.image('hurt', 'assets/hurt.png');
 
 		// Sprite sheets
 		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
 		this.load.spritesheet('treasure', 'assets/treasure.png', 40, 40, 3);
+		this.load.spritesheet('mute', 'assets/mute.png', 90, 90, 2);
 
 		// Sounds
 		var sounds = {
@@ -46,14 +58,18 @@ Preload.prototype = {
 		}
 	},
 	create: function () {
-		this.asset.cropEnabled = false;
+		this.loadingBar.cropEnabled = false;
 	},
 	update: function () {
-		if (!!this.ready) {
+		if (this.loaded && this.ready) {
 			this.game.state.start('menu');
 		}
 	},
 	onLoadComplete: function () {
+		this.loaded = true;
+		this.loadingBar.destroy();
+	},
+	timerComplete: function () {
 		this.ready = true;
 	},
 	buildAddons: function () {

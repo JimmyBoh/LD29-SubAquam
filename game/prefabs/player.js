@@ -39,8 +39,9 @@ var Player = function (game, x, y) {
 	this.maxAir = 15;
 	this.air = this.maxAir;
 
-	this._createAirBar();
 
+	this._createHurtOverlay();
+	this._createAirBar();
 	this._createScore();
 
 	this._stopDragging();
@@ -65,6 +66,11 @@ Player.prototype.update = function () {
 
 	this._updateInput();
 };
+
+Player.prototype.createGUI = function(){
+	this._createAirBar();
+	this._createScore();
+}
 
 Player.prototype._onInputDown = function (pointer, e) {
 	this._startDragging(pointer);
@@ -173,9 +179,11 @@ Player.prototype._updateAir = function () {
 	var barX = 1280 - (40 + 40);
 	var barY = 40;
 
+	var airRatio = this.air / this.maxAir;
+
 	var barHeight = 320;
 	var barWidth = 40;
-	var blueHeight = (this.air / this.maxAir) * barHeight;
+	var blueHeight = airRatio * barHeight;
 	var redHeight = barHeight - blueHeight;
 
 	this.airBar.context.fillStyle = 'rgb(255, 0, 0)';
@@ -184,6 +192,12 @@ Player.prototype._updateAir = function () {
 	this.airBar.context.fillStyle = 'rgb(0, 0, 255)';
 	this.airBar.context.fillRect(barX, barY + redHeight, barWidth, blueHeight);
 	this.airBar.dirty = true;
+
+	var hurtAppears = 0.333;
+	if (airRatio <= hurtAppears)
+		this.hurtOverlay.alpha = 1 - (airRatio / hurtAppears);
+	else
+		this.hurtOverlay.alpha = 0;
 }
 
 Player.prototype._createScore = function(){
@@ -197,6 +211,12 @@ Player.prototype._createScore = function(){
 
 Player.prototype._updateScore = function () {
 	this.scoreText.setText("SCORE: " + this.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+}
+
+Player.prototype._createHurtOverlay = function () {
+	this.hurtOverlay = this.game.add.sprite(0, 0, 'hurt');
+	this.hurtOverlay.alpha = 0;
+	this.hurtOverlay.fixedToCamera = true;
 }
 
 module.exports = Player;
