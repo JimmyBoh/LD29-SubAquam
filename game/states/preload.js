@@ -32,7 +32,7 @@ Preload.prototype = {
 		};
 		for (var s in sounds)
 			for (var i = 0; i < sounds[s]; i++)
-				this.load.audio(s + i, ['assets/' + s + i + '.wav', 'assets/' + s + i + '.ogg']);
+				this.load.audio(s + i, ['assets/' + s + i + '.mp3', 'assets/' + s + i + '.ogg']);
 
 		this.buildAddons();
 	},

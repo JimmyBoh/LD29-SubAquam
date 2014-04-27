@@ -17,6 +17,8 @@ Menu.prototype = {
 		this.instructionsText.anchor.setTo(0.5, 0.5);
 	},
 	update: function () {
+		this.game.scale.refresh();
+
 		if (this.game.input.activePointer.justPressed()) {
 			this.game.state.start('play');
 		}

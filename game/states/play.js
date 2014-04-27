@@ -135,7 +135,6 @@
 
   		if (this.player.wasAbovewater === this.player.isUnderwater && Math.abs(this.player.body.velocity.y) > 2) {
   			var volume = Math.abs(this.player.body.velocity.y) / 50;
-  			if (volume > 0.5) volume = 0.5;
   			this._playSplash(volume);
   		}
   	},
