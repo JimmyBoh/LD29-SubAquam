@@ -454,11 +454,11 @@ module.exports = Menu;
 
   Play.prototype = {
   	create: function () {
-  		var worldWidthInScreens = 3;
-  		var worldHeightInScreens = 6;
+  		var worldWidthInScreens = 3;	// 3 = 3840
+  		var worldHeightInScreens = 6;	// 6 = 4320
 
-  		var worldWidth = this.game.width * worldWidthInScreens;
-  		var worldHeight = this.game.height * worldHeightInScreens;
+  		var worldWidth = this.game.width * worldWidthInScreens; // 3840
+  		var worldHeight = this.game.height * worldHeightInScreens; // 4560
 
   		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
@@ -505,9 +505,7 @@ module.exports = Menu;
   			}
   		}
 
-
-
-  		this.player = new Player(this.game, 300, 300);
+  		this.player = new Player(this.game, 30, 300);
   		this.player.body.onBeginContact.add(this._playerHit, this);
 
   		this._createMuteButton();
@@ -568,6 +566,7 @@ module.exports = Menu;
   				this._playTreasure();
   				this.player.score += body.sprite.value;
   				body.sprite.exists = false;
+
   				break;
   		}
   	},
@@ -634,7 +633,7 @@ Preload.prototype = {
 
 		this.game.time.events.add(Phaser.Timer.SECOND * 1, this.timerComplete, this);
 
-		this.game.add.sprite(0, 0, 'jimmyboh');
+		this.splashscreen = this.game.add.sprite(0, 0, 'jimmyboh');
 
 		this.loadingBar = this.add.sprite(this.game.width / 2, 0, 'preloader');
 		this.loadingBar.anchor.setTo(0.5, 0);
@@ -684,6 +683,7 @@ Preload.prototype = {
 	},
 	update: function () {
 		if (this.loaded && this.ready) {
+			this.splashscreen.destroy();
 			this.game.state.start('menu');
 		}
 	},

@@ -12,7 +12,7 @@ Preload.prototype = {
 
 		this.game.time.events.add(Phaser.Timer.SECOND * 1, this.timerComplete, this);
 
-		this.game.add.sprite(0, 0, 'jimmyboh');
+		this.splashscreen = this.game.add.sprite(0, 0, 'jimmyboh');
 
 		this.loadingBar = this.add.sprite(this.game.width / 2, 0, 'preloader');
 		this.loadingBar.anchor.setTo(0.5, 0);
@@ -62,6 +62,7 @@ Preload.prototype = {
 	},
 	update: function () {
 		if (this.loaded && this.ready) {
+			this.splashscreen.destroy();
 			this.game.state.start('menu');
 		}
 	},

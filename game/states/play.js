@@ -8,11 +8,11 @@
 
   Play.prototype = {
   	create: function () {
-  		var worldWidthInScreens = 3;
-  		var worldHeightInScreens = 6;
+  		var worldWidthInScreens = 3;	// 3 = 3840
+  		var worldHeightInScreens = 6;	// 6 = 4320
 
-  		var worldWidth = this.game.width * worldWidthInScreens;
-  		var worldHeight = this.game.height * worldHeightInScreens;
+  		var worldWidth = this.game.width * worldWidthInScreens; // 3840
+  		var worldHeight = this.game.height * worldHeightInScreens; // 4560
 
   		this.game.world.setBounds(0, 0, worldWidth, worldHeight);
 
@@ -59,9 +59,7 @@
   			}
   		}
 
-
-
-  		this.player = new Player(this.game, 300, 300);
+  		this.player = new Player(this.game, 30, 300);
   		this.player.body.onBeginContact.add(this._playerHit, this);
 
   		this._createMuteButton();
@@ -122,6 +120,7 @@
   				this._playTreasure();
   				this.player.score += body.sprite.value;
   				body.sprite.exists = false;
+
   				break;
   		}
   	},
