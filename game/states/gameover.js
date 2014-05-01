@@ -24,7 +24,7 @@ GameOver.prototype = {
 		this.instructionText.anchor.setTo(0.5, 0.5);
 
 		this.game.highscore = Math.max(this.game.highscore, this.game.score);
-		if (window.localStorage)
+		if (supports_localstorage())
 			window.localStorage['highscore'] = this.game.highscore;
 
 	},

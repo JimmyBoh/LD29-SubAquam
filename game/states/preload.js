@@ -48,7 +48,7 @@ Preload.prototype = {
 
 		this.buildAddons();
 
-		if (window.localStorage) {
+		if (supports_localstorage()) {
 			this.game.highscore = parseInt(window.localStorage['highscore']);
 
 			if (isNaN(this.game.highscore)) {

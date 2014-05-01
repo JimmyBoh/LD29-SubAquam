@@ -400,7 +400,7 @@ GameOver.prototype = {
 		this.instructionText.anchor.setTo(0.5, 0.5);
 
 		this.game.highscore = Math.max(this.game.highscore, this.game.score);
-		if (window.localStorage)
+		if (supports_localstorage())
 			window.localStorage['highscore'] = this.game.highscore;
 
 	},
@@ -609,9 +609,35 @@ module.exports = Menu;
   		this.muteButton = this.game.add.sprite(20, 20, 'mute', 0);
   		this.muteButton.fixedToCamera = true;
   		this.muteButton.inputEnabled = true;
+		
+		var muted = this.game.sound.mute;
+		
+		if (supports_localstorage() && window.localStorage['mute'])
+		{
+			console.log('muting the game');
+			try{
+				this.game.sound.mute = false;
+				this.game.sound.mute = true;
+			}
+			catch(e){ }
+			muted = true;
+		}
+		
+		this.muteButton.frame =  muted ? 1 : 0;
+		
   		this.muteButton.events.onInputDown.add(function () {
-  			this.game.sound.mute = !this.game.sound.mute;
-  			this.muteButton.frame = this.game.sound.mute ? 1 : 0;
+  			var muted = !this.game.sound.mute;
+			this.game.sound.mute = muted;
+			this.muteButton.frame = muted ? 1 : 0;
+			
+			if (supports_localstorage())
+			{
+				if(muted)
+					window.localStorage['mute'] = true;
+				else
+					window.localStorage.removeItem('mute');
+			}
+			
   			return false;
   		}, this);
   	}
@@ -669,7 +695,7 @@ Preload.prototype = {
 
 		this.buildAddons();
 
-		if (window.localStorage) {
+		if (supports_localstorage()) {
 			this.game.highscore = parseInt(window.localStorage['highscore']);
 
 			if (isNaN(this.game.highscore)) {
