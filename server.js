@@ -9,6 +9,12 @@ http.createServer(function(request, response) {
   var uri = '/dist' + url.parse(request.url).pathname
     , filename = path.join(process.cwd(), uri);
   
+  var contentTypesByExtension = {
+    '.html': "text/html",
+    '.css':  "text/css",
+    '.js':   "text/javascript"
+  };
+  
   path.exists(filename, function(exists) {
     if(!exists) {
       response.writeHead(404, {"Content-Type": "text/plain"});
@@ -27,9 +33,13 @@ http.createServer(function(request, response) {
         return;
       }
  
-      response.writeHead(200);
+     var headers = {};
+      var contentType = contentTypesByExtension[path.extname(filename)];
+      if (contentType) headers["Content-Type"] = contentType;
+      response.writeHead(200, headers);
       response.write(file, "binary");
       response.end();
+
     });
   });
 }).listen(port);
