@@ -15,7 +15,7 @@ GameOver.prototype = {
 		this.scoreText = this.game.add.text(this.game.width / 2, 300, 'Your Score: ' + this.game.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), scoreStyle);
 		this.scoreText.anchor.setTo(0.5, 0.5);
 
-		var highscoreText = this.game.score > this.game.highscore ? 'NEW HIGH SCORE!' : 'High Score: ' + this.game.highscore.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		var highscoreText = (typeof(this.game.highscore) !== 'number') || this.game.score > this.game.highscore ? 'NEW HIGH SCORE!' : 'High Score: ' + this.game.highscore.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
 		this.highText = this.game.add.text(this.game.width / 2, 400, highscoreText, scoreStyle);
 		this.highText.anchor.setTo(0.5, 0.5);
@@ -26,7 +26,6 @@ GameOver.prototype = {
 		this.game.highscore = Math.max(this.game.highscore, this.game.score);
 		if (supports_localstorage())
 			window.localStorage['highscore'] = this.game.highscore;
-
 	},
 	update: function () {
 		if (this.game.input.activePointer.justPressed()) {
