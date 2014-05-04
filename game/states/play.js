@@ -55,7 +55,7 @@
   			this[s + 'Sounds'] = [];
   			for (var i = 0; i < sounds[s]; i++) {
   				this[s + 'Sounds'][i] = this.game.add.audio(s + i);
-  				//this[s + 'Sounds'][i].volume = 0.5;
+  				this[s + 'Sounds'][i].volume = 0.75;
   			}
   		}
 
@@ -78,6 +78,8 @@
 
   		if (!cloud) {
   			cloud = new Cloud(this.game);
+			cloud.scale.x = 2;
+			cloud.scale.y = 2;
   			this.clouds.add(cloud);
   		}
 
@@ -89,11 +91,11 @@
   		var treasure = this.treasures.getFirstExists(false);
 
   		if (!treasure) {
-  			treasure = new Treasure(this.game, x, y);
+  			treasure = new Treasure(this.game);
   			this.treasures.add(treasure);
   		}
 
-  		treasure.reset(x, y);
+  		treasure.reset(x, y, 3); // X, Y, Scale
 
   		return treasure;
   	},
@@ -119,14 +121,17 @@
   			case (body && body.sprite instanceof Treasure):
   				this._playTreasure();
   				this.player.score += body.sprite.value;
-  				body.sprite.exists = false;
-
+  				body.sprite.exists = false;				
   				break;
   		}
   	},
   	_checkPlayer: function () {
-  		if (this.player.air <= 0) {
-  			this._playDeath();
+  		var outOfAir = this.player.air <= 0;
+		
+		if (outOfAir || this.player.score >= 25200) {
+  			
+			if(outOfAir) this._playDeath();
+			
   			this.game.score = this.player.score;
 
   			this.treasures.destroy();
@@ -138,7 +143,7 @@
   		}
 
   		if (this.player.wasAbovewater === this.player.isUnderwater && Math.abs(this.player.body.velocity.y) > 2) {
-  			var volume = Math.abs(this.player.body.velocity.y) / 50;
+  			var volume = Math.abs(this.player.body.velocity.y) / 100;
   			this._playSplash(volume);
   		}
   	},
@@ -146,16 +151,17 @@
   	_playSplash: function (volume) {
   		this._playSound('splash', 3, volume);
   	},
-  	_playTreasure: function (volume) {
+  	_playTreasure: function () {
   		var pick = this.game.rnd.integerInRange(0, 2);
-  		this.treasureSounds[pick].play('', 0, volume);
+  		this.treasureSounds[pick].play('', 0, 0.2);
   	},
   	_playDeath: function (volume) {
   		var pick = this.game.rnd.integerInRange(0, 1);
   		this.deathSounds[pick].play('', 0, volume);
   	},
   	_playSound: function (name, number, volume) {
-  		volume = volume || 0.5;
+  		volume = volume || 0.3;
+		volume = volume / 3;
   		var pick = this.game.rnd.integerInRange(0, number - 1);
   		this[name + 'Sounds'][pick].play('', 0, volume);
   	},
@@ -168,7 +174,6 @@
 		
 		if (supports_localstorage() && window.localStorage['mute'])
 		{
-			console.log('muting the game');
 			try{
 				this.game.sound.mute = false;
 				this.game.sound.mute = true;

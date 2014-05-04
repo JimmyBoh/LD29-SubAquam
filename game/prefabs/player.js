@@ -36,7 +36,7 @@ var Player = function (game, x, y) {
 
 	this.limitDrag = false;
 
-	this.maxAir = 15;
+	this.maxAir = 15*60*60;
 	this.air = this.maxAir;
 
 
@@ -203,7 +203,7 @@ Player.prototype._updateAir = function () {
 Player.prototype._createScore = function(){
 	this.score = 0;
 	
-	var scoreStyle = { font: "48px Arial Black", fill: '#000', stroke: '#fff', strokeThickness: 3,  align: 'center' };
+	var scoreStyle = { font: "72px Courier New", fill: '#000', stroke: '#fff', strokeThickness: 1,  align: 'center' };
 	this.scoreText = this.game.add.text(1280 - (80 + 40), 40, "SCORE: 0", scoreStyle);
 	this.scoreText.fixedToCamera = true;
 	this.scoreText.anchor.set(1, 0);

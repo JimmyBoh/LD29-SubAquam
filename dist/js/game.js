@@ -126,7 +126,7 @@ var Player = function (game, x, y) {
 
 	this.limitDrag = false;
 
-	this.maxAir = 15;
+	this.maxAir = 15*60*60;
 	this.air = this.maxAir;
 
 
@@ -293,7 +293,7 @@ Player.prototype._updateAir = function () {
 Player.prototype._createScore = function(){
 	this.score = 0;
 	
-	var scoreStyle = { font: "48px Arial Black", fill: '#000', stroke: '#fff', strokeThickness: 3,  align: 'center' };
+	var scoreStyle = { font: "72px Courier New", fill: '#000', stroke: '#fff', strokeThickness: 1,  align: 'center' };
 	this.scoreText = this.game.add.text(1280 - (80 + 40), 40, "SCORE: 0", scoreStyle);
 	this.scoreText.fixedToCamera = true;
 	this.scoreText.anchor.set(1, 0);
@@ -316,11 +316,9 @@ module.exports = Player;
 
 var Treasure = function (game) {
 	Phaser.Sprite.call(this, game, -100, -100, 'treasure', 0);
-
 	this.anchor.setTo(0.5, 0.5);
 
 	this.game.physics.p2.enable(this, false);
-	this.body.setCircle(20);
 
 	this.body.allowGravity = false;
 	this.body.static = true;
@@ -330,13 +328,18 @@ Treasure.prototype = Object.create(Phaser.Sprite.prototype);
 Treasure.prototype.constructor = Treasure;
 
 Treasure.prototype.update = function() {
-  
+
 };
 
-Treasure.prototype.reset = function (x, y) {
+Treasure.prototype.reset = function (x, y, scale) {
 
 	this.x = this.body.x = x;
 	this.y = this.body.y = y;
+	
+	this.scale.x = scale;
+	this.scale.y = scale;
+	
+	this.body.setCircle(this.width*this.scale);
 
 	this.value = Math.round(100 * (this.y / this.game.height));
 
@@ -429,7 +432,7 @@ Menu.prototype = {
 		this.titleText.anchor.setTo(0.5, 0.5);
 		
 		style.font = '48px Arial Black'
-		this.subTitleText = this.game.add.text(this.game.width/2, 280, 'Paradise Under the Sea', style);
+		this.subTitleText = this.game.add.text(this.game.width/2, 280, 'Adventure', style);
 		this.subTitleText.anchor.setTo(0.5, 0.5);
 
 		this.instructionsText = this.game.add.text(this.game.width/2, 500, 'Click and drag to swim around!\nCollect all the treasures before your air runs out!', { font: '36px Arial', fill: '#ffffff', align: 'center' });
@@ -504,7 +507,7 @@ module.exports = Menu;
   			this[s + 'Sounds'] = [];
   			for (var i = 0; i < sounds[s]; i++) {
   				this[s + 'Sounds'][i] = this.game.add.audio(s + i);
-  				//this[s + 'Sounds'][i].volume = 0.5;
+  				this[s + 'Sounds'][i].volume = 0.75;
   			}
   		}
 
@@ -527,6 +530,8 @@ module.exports = Menu;
 
   		if (!cloud) {
   			cloud = new Cloud(this.game);
+			cloud.scale.x = 2;
+			cloud.scale.y = 2;
   			this.clouds.add(cloud);
   		}
 
@@ -538,11 +543,11 @@ module.exports = Menu;
   		var treasure = this.treasures.getFirstExists(false);
 
   		if (!treasure) {
-  			treasure = new Treasure(this.game, x, y);
+  			treasure = new Treasure(this.game);
   			this.treasures.add(treasure);
   		}
 
-  		treasure.reset(x, y);
+  		treasure.reset(x, y, 3); // X, Y, Scale
 
   		return treasure;
   	},
@@ -568,14 +573,17 @@ module.exports = Menu;
   			case (body && body.sprite instanceof Treasure):
   				this._playTreasure();
   				this.player.score += body.sprite.value;
-  				body.sprite.exists = false;
-
+  				body.sprite.exists = false;				
   				break;
   		}
   	},
   	_checkPlayer: function () {
-  		if (this.player.air <= 0) {
-  			this._playDeath();
+  		var outOfAir = this.player.air <= 0;
+		
+		if (outOfAir || this.player.score >= 25200) {
+  			
+			if(outOfAir) this._playDeath();
+			
   			this.game.score = this.player.score;
 
   			this.treasures.destroy();
@@ -587,7 +595,7 @@ module.exports = Menu;
   		}
 
   		if (this.player.wasAbovewater === this.player.isUnderwater && Math.abs(this.player.body.velocity.y) > 2) {
-  			var volume = Math.abs(this.player.body.velocity.y) / 50;
+  			var volume = Math.abs(this.player.body.velocity.y) / 100;
   			this._playSplash(volume);
   		}
   	},
@@ -595,16 +603,17 @@ module.exports = Menu;
   	_playSplash: function (volume) {
   		this._playSound('splash', 3, volume);
   	},
-  	_playTreasure: function (volume) {
+  	_playTreasure: function () {
   		var pick = this.game.rnd.integerInRange(0, 2);
-  		this.treasureSounds[pick].play('', 0, volume);
+  		this.treasureSounds[pick].play('', 0, 0.2);
   	},
   	_playDeath: function (volume) {
   		var pick = this.game.rnd.integerInRange(0, 1);
   		this.deathSounds[pick].play('', 0, volume);
   	},
   	_playSound: function (name, number, volume) {
-  		volume = volume || 0.5;
+  		volume = volume || 0.3;
+		volume = volume / 3;
   		var pick = this.game.rnd.integerInRange(0, number - 1);
   		this[name + 'Sounds'][pick].play('', 0, volume);
   	},
@@ -617,7 +626,6 @@ module.exports = Menu;
 		
 		if (supports_localstorage() && window.localStorage['mute'])
 		{
-			console.log('muting the game');
 			try{
 				this.game.sound.mute = false;
 				this.game.sound.mute = true;
@@ -675,15 +683,9 @@ Preload.prototype = {
 		for (var i in images)
 			this.load.image(images[i], 'assets/' + images[i] + '.png');
 
-		//this.load.image('sky', 'assets/sky.png');
-		//this.load.image('rotate', 'assets/rotate.png');
-		//this.load.image('player', 'assets/player.png');
-		//this.load.image('arrow', 'assets/arrow.png');
-		//this.load.image('hurt', 'assets/hurt.png');
-
 		// Sprite sheets
-		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
-		this.load.spritesheet('treasure', 'assets/treasure.png', 40, 40, 3);
+		this.load.spritesheet('cloud', 'assets/clouds_small.png', 50, 40, 3);
+		this.load.spritesheet('treasure', 'assets/treasure_pixel.png', 20, 20, 3);
 		this.load.spritesheet('mute', 'assets/mute.png', 90, 90, 2);
 
 		// Sounds
@@ -709,6 +711,8 @@ Preload.prototype = {
 	},
 	create: function () {
 		this.loadingBar.cropEnabled = false;
+		
+		this.game.stage.smoothed = false;
 	},
 	update: function () {
 		if (this.loaded && this.ready) {

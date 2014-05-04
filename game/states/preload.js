@@ -25,15 +25,9 @@ Preload.prototype = {
 		for (var i in images)
 			this.load.image(images[i], 'assets/' + images[i] + '.png');
 
-		//this.load.image('sky', 'assets/sky.png');
-		//this.load.image('rotate', 'assets/rotate.png');
-		//this.load.image('player', 'assets/player.png');
-		//this.load.image('arrow', 'assets/arrow.png');
-		//this.load.image('hurt', 'assets/hurt.png');
-
 		// Sprite sheets
-		this.load.spritesheet('cloud', 'assets/clouds.png', 201, 160, 3);
-		this.load.spritesheet('treasure', 'assets/treasure.png', 40, 40, 3);
+		this.load.spritesheet('cloud', 'assets/clouds_small.png', 50, 40, 3);
+		this.load.spritesheet('treasure', 'assets/treasure_pixel.png', 20, 20, 3);
 		this.load.spritesheet('mute', 'assets/mute.png', 90, 90, 2);
 
 		// Sounds
@@ -59,6 +53,8 @@ Preload.prototype = {
 	},
 	create: function () {
 		this.loadingBar.cropEnabled = false;
+		
+		this.game.stage.smoothed = false;
 	},
 	update: function () {
 		if (this.loaded && this.ready) {
