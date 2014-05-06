@@ -36,7 +36,7 @@ var Player = function (game, x, y) {
 
 	this.limitDrag = false;
 
-	this.maxAir = 15*60*60;
+	this.maxAir = 15;//*60*60;
 	this.air = this.maxAir;
 
 
